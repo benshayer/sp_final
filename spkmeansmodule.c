@@ -37,7 +37,7 @@ double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n)
     return wam;
 }
 
-int main(int argc, char *argv[])
+int testWAM()
 {
     double** matrix;
     double observ1[3] = {1,2,3};
@@ -45,7 +45,12 @@ int main(int argc, char *argv[])
     double observ3[3] = {4,5,6};
     double* observations[3] = {observ1, observ2, observ3};
     matrix = CreateWeightedAdjacencyMatrix(observations,3,3);
+    return 0;
+}
 
+int main(int argc, char *argv[])
+{
+    testWAM();
     return 0;
 }
 
