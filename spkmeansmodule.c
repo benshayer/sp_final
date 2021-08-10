@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include "testsmodule.c"
 
 double calcWeight(double* observ1, double* observ2, int dim)
 {
@@ -36,21 +37,63 @@ double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n)
     }
     return wam;
 }
-
-int testWAM()
+void MatrixMultiply_helper(double** matrixA, double** matrixB, double** result, int n)
 {
-    double** matrix;
-    double observ1[3] = {1,2,3};
-    double observ2[3] = {2,3,4};
-    double observ3[3] = {4,5,6};
-    double* observations[3] = {observ1, observ2, observ3};
-    matrix = CreateWeightedAdjacencyMatrix(observations,3,3);
-    return 0;
+    int i,j,k;
+    double currItem;
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            currItem = 0;
+            for(k=0;k<n;k++)
+            {
+                currItem+=matrixA[i][k] * matrixB[k][j];
+            }
+            result[i][j] = currItem;
+        }
+    }
+}
+void LaplacianNorm_helper(double** Lnorm, int n)
+{
+    int i=0,j=0;
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            if (i==j)
+            {
+                Lnorm[i][i] = 1 - Lnorm[i][i];
+            }
+            else
+            {
+                Lnorm[i][j] = -Lnorm[i][j];
+            }
+        }
+    }
+}
+double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int n)
+{
+    double** Lnorm, **midMatrix;
+    int i,j;
+    Lnorm = calloc(n,sizeof(int*));
+    midMatrix = calloc(n,sizeof(int*));
+    for(i=0;i<n;i++)
+    {
+        Lnorm[i] = calloc(n,sizeof(int));
+        midMatrix[i] = calloc(n,sizeof(int));
+    }
+    MatrixMultiply_helper(ddm_square,wam,midMatrix,n);
+    MatrixMultiply_helper(midMatrix,ddm_square,Lnorm,n);
+    LaplacianNorm_helper(Lnorm, n);
+    return Lnorm;
+
 }
 
 int main(int argc, char *argv[])
 {
     testWAM();
+    testLaplacian();
     return 0;
 }
 
