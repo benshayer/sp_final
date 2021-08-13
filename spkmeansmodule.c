@@ -219,18 +219,14 @@ void copyMatrix(double** matrixSource, double** matrixDest, int n)
     }
 }
 
-void JacobiAlgorithm(double** matrixA, int n)
+void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
-    double **matrixAtag, **matrixP, **matrixV,**matrixNewV, c, s,offA , offAtag, epsilon = 0.001;
+    double **matrixAtag, **matrixP, **matrixNewV, c, s,offA , offAtag, epsilon = 0.001;
     int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1;
     EignValue *eignValues;
-    matrixV = calloc(n, sizeof(double*));
-    assert(matrixV!=NULL);
     for (i=0; i<n;i++)
     {
-        matrixV[i] = calloc(n,sizeof(double));
-        assert(matrixV[i]!=NULL);
         matrixV[i][i] = 1; //Init V to be identity matrix
         for(j=0;j<n;j++)
         {
@@ -281,6 +277,22 @@ void JacobiAlgorithm(double** matrixA, int n)
     } while(stopCondition);
     freeMatrix(matrixV,n);
 }
+
+int TheEigengapHeuristic(double* eigenvalues, int len) {
+    double deltaI = 0;
+    double currMax = 0;
+    int position=0;
+    int i,j;
+    for(i=1; i<=(len/2);i++){
+        deltaI = fabs(eigenvalues[i-1]-eigenvalues[i]);
+        if (deltaI > currMax){
+            currMax = deltaI;
+            position = i-1;
+        }
+    }
+    return position;
+}
+
 
 void getMatrixEignVectors(double** matrixA, double** matrixV, double** matrixU, int n, int k)
 {
