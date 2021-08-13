@@ -1,6 +1,32 @@
 #include <math.h>
 #include <stdlib.h>
 #include "testsmodule.c"
+#include <assert.h>
+
+
+typedef struct EignValue{
+    double value;
+    int index;
+}EignValue;
+
+int cmpfunc (const void * a, const void * b) {
+   EignValue firstE = *(EignValue*)a;
+   EignValue secondE = *(EignValue*)b;
+   if (firstE.value > secondE.value){
+       return 1;
+   }
+   if (secondE.value > firstE.value) {
+       return -1;
+   }
+   else {
+       if (firstE.index <= secondE.index) {
+           return -1;
+       }
+       else {
+           return 1;
+       }
+   }
+}
 
 double calcWeight(double* observ1, double* observ2, int dim)
 {
@@ -21,10 +47,10 @@ double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n)
     double** wam;
     double currWeight;
     int i,j;
-    wam = calloc(n,sizeof(int*));
+    wam = calloc(n,sizeof(double*));
     for(i=0;i<n;i++)
     {
-        wam[i] = calloc(n,sizeof(int));
+        wam[i] = calloc(n,sizeof(double));
     }
     for(i=0;i<n;i++)
     {
@@ -56,15 +82,16 @@ void MatrixMultiply_helper(double** matrixA, double** matrixB, double** result, 
 }
 void findMaxOffDiagonal(double** matrixA, int* k, int* l, int n)
 {  
-    double max = 0;
+    double max = 0, absCurrElem = 0;
     int i=0, j=0;
     for (i=0;i<n;i++)
     {
         for (j=i+1; j<n;j++)
         {
-            if (matrixA[i][j]>max)
+            absCurrElem = pow(pow(matrixA[i][j],2),0.5);
+            if (absCurrElem>max)
             {
-                max = matrixA[i][j];
+                max = absCurrElem;
                 *k = i;
                 *l = j;
             }
@@ -93,12 +120,12 @@ double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int 
 {
     double** Lnorm, **midMatrix;
     int i,j;
-    Lnorm = calloc(n,sizeof(int*));
-    midMatrix = calloc(n,sizeof(int*));
+    Lnorm = calloc(n,sizeof(double*));
+    midMatrix = calloc(n,sizeof(double*));
     for(i=0;i<n;i++)
     {
-        Lnorm[i] = calloc(n,sizeof(int));
-        midMatrix[i] = calloc(n,sizeof(int));
+        Lnorm[i] = calloc(n,sizeof(double));
+        midMatrix[i] = calloc(n,sizeof(double));
     }
     MatrixMultiply_helper(ddm_square,wam,midMatrix,n);
     MatrixMultiply_helper(midMatrix,ddm_square,Lnorm,n);
@@ -110,10 +137,10 @@ double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int 
 void calculateRotateValues(double** matrixA, double* c, double* s, int i, int j)
 {
     double tetha, signTetha, absTetha, t;
-    tetha = (matrixA[j][j]-matrixA[i][i])/2*matrixA[i][j];
+    tetha = (matrixA[j][j]-matrixA[i][i])/(2*matrixA[i][j]);
     (tetha<0) ? (signTetha = -1) : (signTetha=1);
     (tetha<0) ? (absTetha = -tetha) : (absTetha = tetha);
-    t = signTetha / (absTetha + (pow(tetha,2)+1));
+    t = signTetha / (absTetha + pow((pow(tetha,2)+1),0.5));
     *c = 1/(pow((pow(t,2)+1),0.5));
     *s = t*(*c);
 }
@@ -128,24 +155,34 @@ void transform(double** matrixA, double** matrixAt, int n)
         }
     }
 }
-void RotateMatrix_helper(double** matrixA, double** matrixAtag,double c, double s,int i, int j, int n)
-{
+void RotateMatrix_helper(double** matrixA,double c, double s,int i, int j, int n)
+{   
+    double *Icol, *Jcol;
+    Icol = calloc(n,sizeof(double));
+    Jcol = calloc(n,sizeof(double));
     int r;
+    for (r=0;r<n;r++)
+    {
+        Icol[r] = matrixA[r][i];
+        Jcol[r] = matrixA[r][j];
+    }
     for(int r=0; r<n;r++)
     {
         if(r!=i && r!=j)
         {
-            matrixAtag[r][i] = c*matrixA[r][i] - s*matrixA[r][j];
-            matrixAtag[i][r] = matrixAtag[r][i];
-            matrixAtag[r][j] = c*matrixA[r][j] + s* matrixA[r][i];
-            matrixAtag[j][r] = matrixAtag[r][j];
+            matrixA[r][i] = c*Icol[r] - s*Jcol[r];
+            matrixA[i][r] = matrixA[r][i];
+            matrixA[r][j] = c*Jcol[r] + s* Icol[r];
+            matrixA[j][r] = matrixA[r][j];
         }
     }
 
-    matrixAtag[i][i] = pow(c,2)*matrixA[i][i] + pow(s,2)*matrixA[j][j] - 2 * s * c * matrixA[i][j];
-    matrixAtag[j][j] = pow(s,2) *matrixA[i][i] + pow(c,2) * matrixA[j][j] + 2 * s * c * matrixA[i][j];
-    matrixAtag[i][j] = 0;
-    matrixAtag[j][i] = 0;
+    matrixA[i][i] = pow(c,2)*Icol[i] + pow(s,2)*Jcol[j] - 2 * s * c * Jcol[i];
+    matrixA[j][j] = pow(s,2) *Icol[i] + pow(c,2) * Jcol[j] + 2 * s * c * Jcol[i];
+    matrixA[i][j] = 0;
+    matrixA[j][i] = 0;
+    free(Icol);
+    free(Jcol);
 }
 void freeMatrix(double** matrix, int n)
 {
@@ -164,50 +201,128 @@ void calcOFFMatrix(double** matrixA,double* offA, int n)
     {
         for(j=i+1;j<n;j++)
         {
-            offMatrix += pow(2*matrixA[i][j],2);
+            offMatrix += 2 * pow(matrixA[i][j],2);
         }
     }
     *offA = offMatrix;
 }
 
+void copyMatrix(double** matrixSource, double** matrixDest, int n)
+{
+    int i=0,j=0;
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            matrixDest[i][j] = matrixSource[i][j];
+        }
+    }
+}
+
 void JacobiAlgorithm(double** matrixA, int n)
 {
 
-    double **matrixAtag, **matrixP, **matrixV, c, s,offA , offAtag, epsilon = 0.001;
-    int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j;
+    double **matrixAtag, **matrixP, **matrixV,**matrixNewV, c, s,offA , offAtag, epsilon = 0.001;
+    int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1;
+    EignValue *eignValues;
+    matrixV = calloc(n, sizeof(double*));
+    assert(matrixV!=NULL);
+    for (i=0; i<n;i++)
+    {
+        matrixV[i] = calloc(n,sizeof(double));
+        assert(matrixV[i]!=NULL);
+        matrixV[i][i] = 1; //Init V to be identity matrix
+        for(j=0;j<n;j++)
+        {
+            if(i!=j)
+            {
+                matrixV[i][j] =0;
+            }
+        }
+    }
     do{
-        matrixAtag = callock(n, sizeof(int*));
-        assert(matrixAtag!=NULL);
-        matrixP = callock(n,sizeof(int*));
+        calcOFFMatrix(matrixA, &offA, n);
+        matrixNewV = calloc(n,sizeof(double*));
+        assert(matrixNewV!=NULL);
+        matrixP = calloc(n,sizeof(double*));
         assert(matrixP!=NULL);
         for(i=0;i<n;i++)
         {
-            matrixAtag[i] = calloc(n, sizeof(int));
-            assert(matrixAtag[i]!=NULL);
-            matrixP[i] = calloc(n,sizeof(int));
+            matrixNewV[i] = calloc(n, sizeof(double));
+            assert(matrixNewV[i]!=NULL);
+            matrixP[i] = calloc(n,sizeof(double));
             assert(matrixP[i]!=NULL);
-            matrixP[i][i] = 1;    
+            matrixP[i][i] = 1;
+            for(j=0;j<n;j++)
+            {
+                if(i!=j)
+                {
+                    matrixP[i][j] =0;
+                }
+            }    
         }
         findMaxOffDiagonal(matrixA,&maxElementOffDiagonalI,&maxElementOffDiagonalJ,n);
-        calculateRotateValues(matrixA,&c, &s,i,j);
-        matrixP[i][i] = c;
-        matrixP[j][j] = c;
-        matrixP[i][j] = s;
-        matrixP[j][i] = -s;
-        RotateMatrix_helper(matrixA, matrixAtag, c, s,maxElementOffDiagonalI,maxElementOffDiagonalJ, n);
-        calcOFFMatrix(matrixA, &offA, n);
-        calcOFFMatrix(matrixAtag, &offAtag, n);
-        freeMatrix(matrixA,n);
-        matrixA = matrixAtag;
+        calculateRotateValues(matrixA,&c, &s,maxElementOffDiagonalI,maxElementOffDiagonalJ);
+        matrixP[maxElementOffDiagonalI][maxElementOffDiagonalI] = c;
+        matrixP[maxElementOffDiagonalJ][maxElementOffDiagonalJ] = c;
+        matrixP[maxElementOffDiagonalI][maxElementOffDiagonalJ] = s;
+        matrixP[maxElementOffDiagonalJ][maxElementOffDiagonalI] = -s; //Fill relevant values of P
+        RotateMatrix_helper(matrixA,c, s,maxElementOffDiagonalI,maxElementOffDiagonalJ, n); //Calculate A' matrix
+        MatrixMultiply_helper(matrixV,matrixP,matrixNewV,n); //Get the current matrix V
+        calcOFFMatrix(matrixA, &offAtag, n);
+        copyMatrix(matrixNewV,matrixV,n);
+        if ((offA-offAtag)<epsilon)
+        {
+            stopCondition = 0;
+        }
+        freeMatrix(matrixP,n);
+        freeMatrix(matrixNewV,n);
+        if (offAtag==0) {break;}
+    } while(stopCondition);
+    freeMatrix(matrixV,n);
+}
 
-    } while(1);
-    
+void getMatrixEignVectors(double** matrixA, double** matrixV, double** matrixU, int n, int k)
+{
+    EignValue* eignValues;
+    int i,j, indexElem;
+    eignValues = calloc(n,sizeof(EignValue));
+    for (i=0; i<n; i++){
+        eignValues[i].value = matrixA[i][i];
+        eignValues[i].index = i;
+    }
+    qsort(eignValues,n, sizeof(EignValue),cmpfunc);
+    for(j=0;j<k;j++)
+    {
+        indexElem = eignValues[j].index;
+        for(i=0;i<n;i++)
+        {
+            matrixU[i][j] = matrixA[i][indexElem];
+        }
+    }
+}
+void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
+{
+    int i,j;
+    double sumRow;
+    for(i=0;i<n;i++)
+    {   
+        sumRow=0;
+        for(j=0;j<k;j++)
+        {
+            sumRow+=pow(matrixU[i][j],2);
+        }
+        for(j=0;j<k;j++)
+        {
+            matrixU[i][j] = matrixU[i][j]/pow(sumRow,0.5);
+        }
+    }
 }
 
 int main(int argc, char *argv[])
 {
-    testWAM();
-    testLaplacian();
+    testJacobi();
+    testJacobi2();
     return 0;
 }
 
