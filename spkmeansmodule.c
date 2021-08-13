@@ -4,8 +4,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-/* testing */
-
 
 typedef struct EignValue{
     double value;
