@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "testsmodule.c"
 #include <assert.h>
+#include <stdio.h>
 
 
 typedef struct EignValue{
@@ -26,6 +27,56 @@ int cmpfunc (const void * a, const void * b) {
            return 1;
        }
    }
+}
+
+void initDataPoints(char* filename, double ***data_vectors)
+{
+    FILE *ifp = NULL;
+    ifp = fopen(filename,"r");
+    double *vector;
+    double current_value;
+    int d = 2;
+    int n = 10;
+    int i = 0;
+    int j = 0;
+    int *value;
+    char c;
+    vector = (double *)calloc(d, sizeof(double));
+    assert(vector != NULL);
+    while ((c = fgetc(ifp)) != EOF)
+    {
+        if (i == (d - 1))
+        {
+            d *= 2;
+            vector = (double *)realloc(vector, d * sizeof(double));
+            assert(vector != NULL);
+        }
+        if (c == '\n')
+        {
+            vector = (double *)realloc(vector, (i) * sizeof(double));
+            assert(vector != NULL);
+            if (j == (n - 1))
+            {
+                n *= 10;
+                *data_vectors = (double **)realloc(*data_vectors, n * sizeof(double *));
+                assert(*data_vectors != NULL);
+            }
+
+            (*data_vectors)[j] = vector;
+            j++;
+            vector = (double *)calloc((i), sizeof(double));
+            assert(vector != NULL);
+            d = i;
+            i = 0;
+        } 
+        else {
+            vector[i] = (double)c;
+            i++;
+        }
+    }
+    free(vector);
+    *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
+    assert(*data_vectors != NULL);
 }
 
 double calcWeight(double* observ1, double* observ2, int dim)
