@@ -275,7 +275,6 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         freeMatrix(matrixNewV,n);
         if (offAtag==0) {break;}
     } while(stopCondition);
-    freeMatrix(matrixV,n);
 }
 
 int TheEigengapHeuristic(double* eigenvalues, int len) {
