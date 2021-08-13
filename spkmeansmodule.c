@@ -344,7 +344,7 @@ int TheEigengapHeuristic(double* eigenvalues, int len) {
 }
 
 
-void getMatrixEignVectors(double** matrixA, double** matrixV, double** matrixU, int n, int k)
+void getMatrixSortedEignVectors(double** matrixA, double** matrixV, double** matrixU, int n, int k)
 {
     EignValue* eignValues;
     int i,j, indexElem;
