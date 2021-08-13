@@ -44,7 +44,7 @@ void initDataPoints(char* filename, double ***data_vectors)
     char c;
     vector = (double *)calloc(d, sizeof(double));
     assert(vector != NULL);
-    while ((c = fgetc(ifp)) != EOF)
+    while (fscanf(ifp,"%lf%c", &current_value, &c) == 2)
     {
         if (i == (d - 1))
         {
@@ -52,6 +52,8 @@ void initDataPoints(char* filename, double ***data_vectors)
             vector = (double *)realloc(vector, d * sizeof(double));
             assert(vector != NULL);
         }
+        vector[i] = current_value;
+        i++;
         if (c == '\n')
         {
             vector = (double *)realloc(vector, (i) * sizeof(double));
@@ -70,10 +72,6 @@ void initDataPoints(char* filename, double ***data_vectors)
             d = i;
             i = 0;
         } 
-        else {
-            vector[i] = (double)c;
-            i++;
-        }
     }
     free(vector);
     *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
