@@ -296,6 +296,15 @@ void copyMatrix(double** matrixSource, double** matrixDest, int n)
     }
 }
 
+void getEignValues(double** matrixA,double* EignValues, int n)
+{
+    int i;
+    for(i=0;i<n;i++)
+    {
+        EignValues[i] = matrixA[i][i];
+    }
+}
+
 void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
