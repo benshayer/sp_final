@@ -299,7 +299,7 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
     double **matrixAtag, **matrixP, **matrixNewV, c, s,offA , offAtag, epsilon = 0.001;
-    int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1;
+    int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1, countIter=0;
     EignValue *eignValues;
     for (i=0; i<n;i++)
     {
@@ -313,6 +313,7 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         }
     }
     do{
+        countIter++;
         calcOFFMatrix(matrixA, &offA, n);
         matrixNewV = calloc(n,sizeof(double*));
         assert(matrixNewV!=NULL);
@@ -350,7 +351,7 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         freeMatrix(matrixP,n);
         freeMatrix(matrixNewV,n);
         if (offAtag==0) {break;}
-    } while(stopCondition);
+    } while(stopCondition && countIter<100);
 }
 
 int TheEigengapHeuristic(double* eigenvalues, int len) {
