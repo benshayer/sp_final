@@ -3,6 +3,7 @@ double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int 
 double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n);
 double** DiagonalDegreeMatrix(double** matrix, int n);
 void flowSPKforC(double** observations, int n, int dim, int k,int max_iter);
+void flowJacobiAlgo(double** matrix,int n);
 void getMatrixSortedEignVectors(double** matrixA, double** matrixV, double** matrixU, int n, int k);
 double** getNewDataPointsDimK(double** observations, int n, int dim, int* k);
 int* initDataPoints(char* filename, double ***data_vectors);

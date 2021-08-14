@@ -449,13 +449,47 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
     double** centroids, **newDataPoints;
     int i;
     newDataPoints = getNewDataPointsDimK(observations,n,dim, &k);
-    centroids = (double*)calloc(k,sizeof(double*));
+    centroids = (double**)calloc(k,sizeof(double*));
     for(i=0;i<k;i++)
     {
         centroids[i] = calloc(k,sizeof(double));
     }
     getFirstKCentroids(newDataPoints,centroids,k);
     calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
+}
+
+void flowJacobiAlgo(double** matrix,int n)
+{   
+    double** matrixEignVectors;
+    int i,j;
+    matrixEignVectors = (double**)calloc(n,sizeof(double*));
+    for(i=0;i<n;i++)
+    {
+        matrixEignVectors[i] = calloc(n,sizeof(double));
+    }
+    JacobiAlgorithm(matrix,matrixEignVectors,n);
+    for(i=0;i<n;i++)
+    {
+        if (i<(n-1)){
+            printf("%f,",matrix[i][i]);
+        } else{
+            printf("%f\n",matrix[i][i]);
+        }
+    }
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            if (j<(n-1))
+            {
+                printf("%f,",matrix[j][i]);
+            }
+            else
+            {
+                printf("%f\n",matrix[j][i]);
+            }
+        }
+    }
 }
 
 int main(int argc, char *argv[])
