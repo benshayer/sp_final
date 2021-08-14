@@ -449,7 +449,8 @@ void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k)
         {
             centroidsToFill[i][j] = dataPoints[i][j];
         }
-        
+    }
+}
 void printMatrix(double** matrix, int a, int b) {
     int i,j;
     for (i = 0; i < a; i++)

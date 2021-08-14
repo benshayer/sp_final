@@ -5,6 +5,7 @@ double** DiagonalDegreeMatrix(double** matrix, int n);
 void flowSPKforC(double** observations, int n, int dim, int k,int max_iter);
 void flowJacobiAlgo(double** matrix,int n);
 void getEignValues(double** matrixA,double* EignValues, int n);
+void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k);
 void getMatrixSortedEignVectors(double** matrixA, double** matrixV, double** matrixU, int n, int k);
 double** getNewDataPointsDimK(double** observations, int n, int dim, int* k);
 int* initDataPoints(char* filename, double ***data_vectors);
