@@ -406,14 +406,62 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
     }
 }
 
-int main(int argc, char *argv[])
-{   
+void printMatrix(double** matrix, int a, int b) {
+    int i,j;
+    for (i = 0; i < a; i++)
+    {
+        for (j = 0; j <  b - 1; j++)
+        {
+            printf("%0.4f,", matrix[i][j]);
+        }
+        printf("%0.4f", matrix[i][b - 1]);
+        putchar('\n');
+    }
+}
+
+
+int main(int argc, char *argv[]){
+
+    char* nameOfFile;
+    char *flow;
+    double** data_vectors, **wam, **ddm, **lnorm;
     int* values;
-    int n;
-    double** data_vectors;
-    n=10;
+    int n,k,d;
+    n = 10;
     data_vectors = (double **)calloc(n, sizeof(double *));
-    initDataPoints("/Users/giladf/Desktop/Semester B/sp_final/tests/input_1.txt",&data_vectors);
+    k = atoi(argv[1]);
+    flow = argv[2];
+    nameOfFile = argv[3];
+    values = initDataPoints(nameOfFile, &data_vectors);
+    n = values[0];
+    d = values[1];
+    if (flow == "wam"){
+        wam = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+        printMatrix(wam,n,n);
+
+    }
+    else if (flow == "ddg"){
+        wam = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+        ddm = DiagonalDegreeMatrix(wam,n);
+        printMatrix(ddm,n,n);
+    }
+    else if (flow =="lnorm"){
+        wam = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+        ddm = DiagonalDegreeMatrix(wam,n);
+        lnorm = ComputeNormalizedGraphLaplacian(wam,ddm,n);
+        printMatrix(lnorm,n,n);
+    }
+    else if (flow=="jacobi"){
+
+    }
+    else if (flow=="spk"){
+
+    }
+
+
+
+
+
 
     return 0;
 }
