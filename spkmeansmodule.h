@@ -14,3 +14,4 @@ void LaplacianNorm_helper(double** Lnorm, int n);
 void MatrixMultiply_helper(double** matrixA, double** matrixB, double** result, int n);
 int TheEigengapHeuristic(double* eignvalues, int len);
 
+void printMatrix(double** matrix, int a, int b);
