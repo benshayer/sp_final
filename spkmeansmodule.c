@@ -431,8 +431,8 @@ double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
         *k = TheEigengapHeuristic(EignValues,n);
         free(EignValues);
     }
-    getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,k);
-    normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,k);
+    getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,*k);
+    normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,*k);
     freeMatrix(weightedAdjMatrix,n);
     freeMatrix(Lnorm,n);
     freeMatrix(ddMatrix,n);
@@ -491,11 +491,11 @@ void flowJacobiAlgo(double** matrix,int n)
         {
             if (j<(n-1))
             {
-                printf("%f,",matrix[j][i]);
+                printf("%f,",matrixEignVectors[j][i]);
             }
             else
             {
-                printf("%f\n",matrix[j][i]);
+                printf("%f\n",matrixEignVectors[j][i]);
             }
         }
     }
