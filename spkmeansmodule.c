@@ -30,7 +30,7 @@ int cmpfunc (const void * a, const void * b) {
    }
 }
 
-void initDataPoints(char* filename, double ***data_vectors)
+int * initDataPoints(char* filename, double ***data_vectors)
 {
     FILE *ifp = NULL;
     ifp = fopen(filename,"r");
@@ -76,6 +76,11 @@ void initDataPoints(char* filename, double ***data_vectors)
     free(vector);
     *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
     assert(*data_vectors != NULL);
+    value = (int *)calloc(2, sizeof(int));
+    assert(value != NULL);
+    value[0] = j;
+    value[1] = d;
+    return value;
 }
 
 double calcWeight(double* observ1, double* observ2, int dim)
@@ -381,9 +386,14 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
 }
 
 int main(int argc, char *argv[])
-{
-    testJacobi();
-    testJacobi2();
+{   
+    int* values;
+    int n;
+    double** data_vectors;
+    n=10;
+    data_vectors = (double **)calloc(n, sizeof(double *));
+    initDataPoints("/Users/giladf/Desktop/Semester B/sp_final/tests/input_1.txt",&data_vectors);
+
     return 0;
 }
 
