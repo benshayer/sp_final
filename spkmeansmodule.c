@@ -3,6 +3,7 @@
 #include "testsmodule.c"
 #include <assert.h>
 #include <stdio.h>
+#include "kmeans.h"
 
 /* test */
 
@@ -405,6 +406,56 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
             matrixU[i][j] = matrixU[i][j]/pow(sumRow,0.5);
         }
     }
+}
+
+double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
+{
+    double **weightedAdjMatrix, **Lnorm, **ddMatrix, **EignVectorsMatrix,**matrixNewPointsToKmeans, *EignValues;
+    weightedAdjMatrix = CreateWeightedAdjacencyMatrix(observations,dim,n);
+    ddMatrix = DiagonalDegreeMatrix(weightedAdjMatrix,n);
+    Lnorm = ComputeNormalizedGraphLaplacian(weightedAdjMatrix,ddMatrix,n);
+    JacobiAlgorithm(Lnorm,EignVectorsMatrix,n);
+    if(*k==0)
+    {
+        EignValues = calloc(n,sizeof(double));
+        getEignValues(Lnorm,EignValues,n);
+        *k = TheEigengapHeuristic(EignValues,n);
+        free(EignValues);
+    }
+    getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,k);
+    normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,k);
+    freeMatrix(weightedAdjMatrix,n);
+    freeMatrix(Lnorm,n);
+    freeMatrix(ddMatrix,n);
+    freeMatrix(EignVectorsMatrix,n);
+    return matrixNewPointsToKmeans;
+}
+
+void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k)
+{
+    int i,j;
+    for(i=0;i<k;i++)
+    {
+        for(j=0;j<k;j++)
+        {
+            centroidsToFill[i][j] = dataPoints[i][j];
+        }
+    }
+}
+
+
+void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
+{
+    double** centroids, **newDataPoints;
+    int i;
+    newDataPoints = getNewDataPointsDimK(observations,n,dim, &k);
+    centroids = (double*)calloc(k,sizeof(double*));
+    for(i=0;i<k;i++)
+    {
+        centroids[i] = calloc(k,sizeof(double));
+    }
+    getFirstKCentroids(newDataPoints,centroids,k);
+    calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
 }
 
 int main(int argc, char *argv[])
