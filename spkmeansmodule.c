@@ -118,6 +118,27 @@ double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n)
     }
     return wam;
 }
+
+double** DiagonalDegreeMatrix(double** matrix, int n)
+{
+    double** ddm;
+    double sumOfRow;
+    int i,j;
+    ddm = calloc(n,sizeof(double*));
+    for(i=0;i<n;i++)
+    {
+        ddm[i] = calloc(n,sizeof(double));
+    }
+    for (i=0;i<n;i++){
+        sumOfRow = 0;
+        for (j=0;j<n;j++){
+            sumOfRow += matrix[i][j];
+        }
+        ddm[i][i] = 1/sqrt(sumOfRow);
+    }
+    return ddm;
+}
+
 void MatrixMultiply_helper(double** matrixA, double** matrixB, double** result, int n)
 {
     int i,j,k;
