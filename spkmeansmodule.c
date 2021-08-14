@@ -3,6 +3,7 @@
 #include "testsmodule.c"
 #include <assert.h>
 #include <stdio.h>
+#include "kmeans.h"
 
 /* test */
 
@@ -299,7 +300,7 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
     double **matrixAtag, **matrixP, **matrixNewV, c, s,offA , offAtag, epsilon = 0.001;
-    int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1;
+    int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1, countIter=0;
     EignValue *eignValues;
     for (i=0; i<n;i++)
     {
@@ -313,6 +314,7 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         }
     }
     do{
+        countIter++;
         calcOFFMatrix(matrixA, &offA, n);
         matrixNewV = calloc(n,sizeof(double*));
         assert(matrixNewV!=NULL);
@@ -350,7 +352,7 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         freeMatrix(matrixP,n);
         freeMatrix(matrixNewV,n);
         if (offAtag==0) {break;}
-    } while(stopCondition);
+    } while(stopCondition && countIter<100);
 }
 
 int TheEigengapHeuristic(double* eigenvalues, int len) {
@@ -406,6 +408,38 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
     }
 }
 
+double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
+{
+    double **weightedAdjMatrix, **Lnorm, **ddMatrix, **EignVectorsMatrix,**matrixNewPointsToKmeans, *EignValues;
+    weightedAdjMatrix = CreateWeightedAdjacencyMatrix(observations,dim,n);
+    ddMatrix = DiagonalDegreeMatrix(weightedAdjMatrix,n);
+    Lnorm = ComputeNormalizedGraphLaplacian(weightedAdjMatrix,ddMatrix,n);
+    JacobiAlgorithm(Lnorm,EignVectorsMatrix,n);
+    if(*k==0)
+    {
+        EignValues = calloc(n,sizeof(double));
+        getEignValues(Lnorm,EignValues,n);
+        *k = TheEigengapHeuristic(EignValues,n);
+        free(EignValues);
+    }
+    getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,k);
+    normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,k);
+    freeMatrix(weightedAdjMatrix,n);
+    freeMatrix(Lnorm,n);
+    freeMatrix(ddMatrix,n);
+    freeMatrix(EignVectorsMatrix,n);
+    return matrixNewPointsToKmeans;
+}
+
+void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k)
+{
+    int i,j;
+    for(i=0;i<k;i++)
+    {
+        for(j=0;j<k;j++)
+        {
+            centroidsToFill[i][j] = dataPoints[i][j];
+        }
 void printMatrix(double** matrix, int a, int b) {
     int i,j;
     for (i = 0; i < a; i++)
@@ -420,6 +454,22 @@ void printMatrix(double** matrix, int a, int b) {
 }
 
 
+void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
+{
+    double** centroids, **newDataPoints;
+    int i;
+    newDataPoints = getNewDataPointsDimK(observations,n,dim, &k);
+    centroids = (double*)calloc(k,sizeof(double*));
+    for(i=0;i<k;i++)
+    {
+        centroids[i] = calloc(k,sizeof(double));
+    }
+    getFirstKCentroids(newDataPoints,centroids,k);
+    calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
+}
+
+int main(int argc, char *argv[])
+{   
 int main(int argc, char *argv[]){
 
     char* nameOfFile;
