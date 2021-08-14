@@ -440,6 +440,7 @@ void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k)
         {
             centroidsToFill[i][j] = dataPoints[i][j];
         }
+        
 void printMatrix(double** matrix, int a, int b) {
     int i,j;
     for (i = 0; i < a; i++)
@@ -468,8 +469,7 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
     calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
 }
 
-int main(int argc, char *argv[])
-{   
+
 int main(int argc, char *argv[]){
 
     char* nameOfFile;
