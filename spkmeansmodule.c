@@ -296,6 +296,15 @@ void copyMatrix(double** matrixSource, double** matrixDest, int n)
     }
 }
 
+void getEignValues(double** matrixA,double* EignValues, int n)
+{
+    int i;
+    for(i=0;i<n;i++)
+    {
+        EignValues[i] = matrixA[i][i];
+    }
+}
+
 void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
@@ -422,8 +431,8 @@ double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
         *k = TheEigengapHeuristic(EignValues,n);
         free(EignValues);
     }
-    getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,k);
-    normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,k);
+    getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,*k);
+    normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,*k);
     freeMatrix(weightedAdjMatrix,n);
     freeMatrix(Lnorm,n);
     freeMatrix(ddMatrix,n);
@@ -440,7 +449,8 @@ void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k)
         {
             centroidsToFill[i][j] = dataPoints[i][j];
         }
-        
+    }
+}
 void printMatrix(double** matrix, int a, int b) {
     int i,j;
     for (i = 0; i < a; i++)
@@ -460,7 +470,7 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
     double** centroids, **newDataPoints;
     int i;
     newDataPoints = getNewDataPointsDimK(observations,n,dim, &k);
-    centroids = (double*)calloc(k,sizeof(double*));
+    centroids = (double**)calloc(k,sizeof(double*));
     for(i=0;i<k;i++)
     {
         centroids[i] = calloc(k,sizeof(double));
@@ -469,12 +479,42 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
     calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
 }
 
+void flowJacobiAlgo(double** matrix,int n)
+{   
+    double** matrixEignVectors;
+    int i,j;
+    matrixEignVectors = (double**)calloc(n,sizeof(double*));
+    for(i=0;i<n;i++)
+    {
+        matrixEignVectors[i] = calloc(n,sizeof(double));
+    }
+    JacobiAlgorithm(matrix,matrixEignVectors,n);
+    for(i=0;i<n;i++)
+    {
+        if (i<(n-1)){
+            printf("%f,",matrix[i][i]);
+        } else{
+            printf("%f\n",matrix[i][i]);
+        }
+    }
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            if (j<(n-1))
+            {
+                printf("%f,",matrixEignVectors[j][i]);
+            }
+            else
+            {
+                printf("%f\n",matrixEignVectors[j][i]);
+            }
+        }
+    }
+}
 
-int main(int argc, char *argv[]){
-
-    char* nameOfFile;
-    char *flow;
-    double** data_vectors, **wam, **ddm, **lnorm;
+int main(int argc, char *argv[])
+{   
     int* values;
     int n,k,d;
     n = 10;
