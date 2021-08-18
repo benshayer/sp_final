@@ -4,7 +4,7 @@
 #include "testsmodule.c"
 #include <assert.h>
 #include <stdio.h>
-#include "kmeans.h"
+#include "kmeans.c"
 
 /* test */
 
@@ -446,10 +446,18 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
 
 double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
 {
+    int i;
     double **weightedAdjMatrix, **Lnorm, **ddMatrix, **EignVectorsMatrix,**matrixNewPointsToKmeans, *EignValues;
     weightedAdjMatrix = CreateWeightedAdjacencyMatrix(observations,dim,n);
     ddMatrix = DiagonalDegreeMatrix(weightedAdjMatrix,n);
     Lnorm = ComputeNormalizedGraphLaplacian(weightedAdjMatrix,ddMatrix,n);
+    EignVectorsMatrix = (double**)calloc(n,sizeof(double*));
+    matrixNewPointsToKmeans = (double**)calloc(n,sizeof(double*));
+    for(i=0;i<n;i++)
+    {
+        EignVectorsMatrix[i] = calloc(n,sizeof(double));
+        matrixNewPointsToKmeans[i] = calloc(n,sizeof(double));
+    }
     JacobiAlgorithm(Lnorm,EignVectorsMatrix,n);
     if(*k==0)
     {
@@ -503,7 +511,7 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
         centroids[i] = calloc(k,sizeof(double));
     }
     getFirstKCentroids(newDataPoints,centroids,k);
-    //calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
+    calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
 }
 
 void flowJacobiAlgo(double** matrix,int n)
