@@ -82,6 +82,7 @@ int * initDataPoints(char* filename, double ***data_vectors)
             }
     (*data_vectors)[j] = vector;
     j++;
+    d=i;
     free(vector);
     *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
     assert(*data_vectors != NULL);
@@ -523,6 +524,9 @@ void flowJacobiAlgo(double** matrix,int n)
 
 int main(int argc, char *argv[])
 {   
+    char* nameOfFile;
+    char* flow;
+    double** data_vectors;
     int* values;
     int n,k,d;
     n = 10;
