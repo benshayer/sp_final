@@ -1,9 +1,10 @@
 #include <math.h>
+#include <string.h>
 #include <stdlib.h>
 #include "testsmodule.c"
 #include <assert.h>
 #include <stdio.h>
-#include "kmeans.h"
+#include "kmeans.c"
 
 /* test */
 
@@ -11,6 +12,24 @@ typedef struct EignValue{
     double value;
     int index;
 }EignValue;
+
+enum goal{spk, wam,ddg,lnorm,jacobi};
+
+int convertStringIntoGoalEnum(char* UserGoal)
+{
+    if (!strcmp(UserGoal,"spk"))
+    {
+        return 0;
+    } else if (!strcmp(UserGoal,"wam")){
+        return 1;
+    } else if (!strcmp(UserGoal, "ddg")){
+        return 2;
+    } else if (!strcmp(UserGoal,"lnorm")){
+        return 3;
+    } else if (!strcmp(UserGoal,"jacobi")){
+        return 4;
+    };
+}
 
 int cmpfunc (const void * a, const void * b) {
    EignValue firstE = *(EignValue*)a;
@@ -428,10 +447,18 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
 
 double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
 {
+    int i;
     double **weightedAdjMatrix, **Lnorm, **ddMatrix, **EignVectorsMatrix,**matrixNewPointsToKmeans, *EignValues;
     weightedAdjMatrix = CreateWeightedAdjacencyMatrix(observations,dim,n);
     ddMatrix = DiagonalDegreeMatrix(weightedAdjMatrix,n);
     Lnorm = ComputeNormalizedGraphLaplacian(weightedAdjMatrix,ddMatrix,n);
+    EignVectorsMatrix = (double**)calloc(n,sizeof(double*));
+    matrixNewPointsToKmeans = (double**)calloc(n,sizeof(double*));
+    for(i=0;i<n;i++)
+    {
+        EignVectorsMatrix[i] = calloc(n,sizeof(double));
+        matrixNewPointsToKmeans[i] = calloc(n,sizeof(double));
+    }
     JacobiAlgorithm(Lnorm,EignVectorsMatrix,n);
     if(*k==0)
     {
@@ -529,7 +556,9 @@ int main(int argc, char *argv[])
     double** data_vectors;
     int* values;
     int n,k,d;
+    char* flow, *nameOfFile;
     n = 10;
+    double** data_vectors, **WeightedAdjMatrix, **DDMatrix, **lNormMatrix;
     data_vectors = (double **)calloc(n, sizeof(double *));
     k = atoi(argv[1]);
     flow = argv[2];
@@ -537,34 +566,29 @@ int main(int argc, char *argv[])
     values = initDataPoints(nameOfFile, &data_vectors);
     n = values[0];
     d = values[1];
-    if (flow == "wam"){
-        wam = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-        printMatrix(wam,n,n);
-
+    switch(convertStringIntoGoalEnum(flow))
+    {
+        case spk:
+            flowSPKforC(data_vectors,n,d,k,300);
+            break;
+        case wam:
+            WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+            printMatrix(WeightedAdjMatrix,n,n);
+            break;
+        case ddg:
+            WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+            DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
+            printMatrix(DDMatrix,n,n);
+            break;
+        case lnorm:
+            WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+            DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
+            lNormMatrix = ComputeNormalizedGraphLaplacian(WeightedAdjMatrix,DDMatrix,n);
+            printMatrix(lNormMatrix,n,n);
+            break;
+        case jacobi:
+            break;
     }
-    else if (flow == "ddg"){
-        wam = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-        ddm = DiagonalDegreeMatrix(wam,n);
-        printMatrix(ddm,n,n);
-    }
-    else if (flow =="lnorm"){
-        wam = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-        ddm = DiagonalDegreeMatrix(wam,n);
-        lnorm = ComputeNormalizedGraphLaplacian(wam,ddm,n);
-        printMatrix(lnorm,n,n);
-    }
-    else if (flow=="jacobi"){
-
-    }
-    else if (flow=="spk"){
-
-    }
-
-
-
-
-
-
-    return 0;
+  return 0;
 }
 
