@@ -1,7 +1,6 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include "testsmodule.c"
 #include <assert.h>
 #include <stdio.h>
 #include "kmeans.c"
@@ -289,6 +288,27 @@ void RotateMatrix_helper(double** matrixA,double c, double s,int i, int j, int n
     free(Icol);
     free(Jcol);
 }
+
+void UpdateMatrixV(double **matrixV, double c, double s, int i, int j, int n)
+{
+    int p,q,r;
+    double *Icol, *Jcol;
+    Icol = calloc(n,sizeof(double));
+    Jcol = calloc(n,sizeof(double));
+    for (r=0;r<n;r++)
+    {
+        Icol[r] = matrixV[r][i];
+        Jcol[r] = matrixV[r][j];
+    }
+    for (r=0;r<n;r++)
+    {
+        matrixV[r][i] = c*Icol[r] - s*Jcol[r];
+        matrixV[r][j] = s*Icol[r] + c*Jcol[r];
+    }
+    free(Icol);
+    free(Jcol);
+}
+
 void freeMatrix(double** matrix, int n)
 {
     int i;
@@ -379,15 +399,16 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         matrixP[maxElementOffDiagonalI][maxElementOffDiagonalJ] = s;
         matrixP[maxElementOffDiagonalJ][maxElementOffDiagonalI] = -s; //Fill relevant values of P
         RotateMatrix_helper(matrixA,c, s,maxElementOffDiagonalI,maxElementOffDiagonalJ, n); //Calculate A' matrix
-        MatrixMultiply_helper(matrixV,matrixP,matrixNewV,n); //Get the current matrix V
+        //MatrixMultiply_helper(matrixV,matrixP,matrixNewV,n); //Get the current matrix V
+        UpdateMatrixV(matrixV,c,s,maxElementOffDiagonalI,maxElementOffDiagonalJ,n);
         calcOFFMatrix(matrixA, &offAtag, n);
-        copyMatrix(matrixNewV,matrixV,n);
+        //copyMatrix(matrixNewV,matrixV,n);
         if ((offA-offAtag)<epsilon)
         {
             stopCondition = 0;
         }
         freeMatrix(matrixP,n);
-        freeMatrix(matrixNewV,n);
+        //freeMatrix(matrixNewV,n);
         if (offAtag==0) {break;}
     } while(stopCondition && countIter<100);
 }
@@ -528,9 +549,9 @@ void flowJacobiAlgo(double** matrix,int n)
     for(i=0;i<n;i++)
     {
         if (i<(n-1)){
-            printf("%f,",matrix[i][i]);
+            printf("%0.4f,",matrix[i][i]);
         } else{
-            printf("%f\n",matrix[i][i]);
+            printf("%0.4f\n",matrix[i][i]);
         }
     }
     for(i=0;i<n;i++)
@@ -539,11 +560,11 @@ void flowJacobiAlgo(double** matrix,int n)
         {
             if (j<(n-1))
             {
-                printf("%f,",matrixEignVectors[j][i]);
+                printf("%0.4f,",matrixEignVectors[j][i]);
             }
             else
             {
-                printf("%f\n",matrixEignVectors[j][i]);
+                printf("%0.4f\n",matrixEignVectors[j][i]);
             }
         }
     }
@@ -599,6 +620,7 @@ int main(int argc, char *argv[])
             flowLnorm(data_vectors,d,n);
             break;
         case jacobi:
+            flowJacobiAlgo(data_vectors,n);
             break;
     }
   return 0;
