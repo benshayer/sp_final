@@ -2,3 +2,5 @@
 .vscode
 tests/old_J
 *.obj
+build/temp.win-amd64-3.7/Release/spkmeans.cp37-win_amd64.lib
+project_2/build/temp.win-amd64-3.7/Release/mykmeanssp.cp37-win_amd64.lib
