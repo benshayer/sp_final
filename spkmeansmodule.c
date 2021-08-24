@@ -73,7 +73,7 @@ int * initDataPoints(char* filename, double ***data_vectors)
         }
         vector[i] = current_value;
         i++;
-        if (c == '\n')
+        if (c == '\n' || c=='\r')
         {
             vector = (double *)realloc(vector, (i) * sizeof(double));
             assert(vector != NULL);
