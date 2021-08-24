@@ -1,3 +1,4 @@
 ﻿.idea
 .vscode
 tests/old_J
+*.obj
