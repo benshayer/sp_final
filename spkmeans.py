@@ -1,5 +1,17 @@
-# import numpy as np
-# import csv
+import numpy as np
+import csv
+import spkmeans
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("args", nargs="+")
+parser = parser.parse_args()
+args = parser.args
+if len(args) == 3:
+    k,  goal, file_name = int(args[0]), str(args[1]), str(args[2])
+else:
+    print("Error!")
+    exit()
 
 
 # WAM = np.array([[0, 4, 3], [4, 0, 5], [3, 5, 0]])
@@ -14,17 +26,21 @@
 #     print('\n')
 
 
-# def initDataPointsPython(filename):
-#     dataVectors = []
-#     file = open("g.txt", 'r')
-#     for row in file:
-#         rowWithOutComma = row.split(',')
-#         newRow=[]
-#         for item in rowWithOutComma:
-#             newRow.append(int(item))
-#         dataVectors.append(newRow)
-#     return dataVectors
+def initDataPointsPython(filename):
+     dataVectors = []
+     file = open(filename, 'r')
+     for row in file:
+         rowWithOutComma = row.split(',')
+         newRow=[]
+         for item in rowWithOutComma:
+             newRow.append(float(item))
+         dataVectors.append(newRow)
+     return dataVectors
 
+if __name__ == '__main__':
+    dataVectors = initDataPointsPython(file_name)
+    n = len(dataVectors)
+    spkmeans.jacobi(n,dataVectors)
 
 
 
