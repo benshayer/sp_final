@@ -305,7 +305,8 @@ void UpdateMatrixV(double **matrixV, double c, double s, int i, int j, int n)
         matrixV[r][i] = c*Icol[r] - s*Jcol[r];
         matrixV[r][j] = s*Icol[r] + c*Jcol[r];
     }
-
+    free(Icol);
+    free(Jcol);
 }
 
 void freeMatrix(double** matrix, int n)
