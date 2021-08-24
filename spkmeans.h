@@ -16,3 +16,5 @@ void MatrixMultiply_helper(double** matrixA, double** matrixB, double** result, 
 int TheEigengapHeuristic(double* eignvalues, int len);
 
 void printMatrix(double** matrix, int a, int b);
+
+enum goal{spk, wam,ddg,lnorm,jacobi};

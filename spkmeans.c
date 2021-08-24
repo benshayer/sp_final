@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include "spkmeans.h"
 #include "kmeans.c"
 
 /* test */
@@ -12,7 +13,6 @@ typedef struct EignValue{
     int index;
 }EignValue;
 
-enum goal{spk, wam,ddg,lnorm,jacobi};
 
 int convertStringIntoGoalEnum(char* UserGoal)
 {
