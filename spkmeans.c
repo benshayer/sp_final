@@ -570,6 +570,27 @@ void flowJacobiAlgo(double** matrix,int n)
     }
 }
 
+void flowWam(double** data_vectors,int d, int n) {
+    double** WeightedAdjMatrix;
+    WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+    printMatrix(WeightedAdjMatrix,n,n);
+}
+
+void flowDdg(double** data_vectors,int d, int n) {
+    double** WeightedAdjMatrix, **DDMatrix;
+    WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+    DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
+    printMatrix(DDMatrix,n,n);
+}
+
+void flowLnorm(double** data_vectors,int d, int n) {
+    double** WeightedAdjMatrix, **DDMatrix, **lNormMatrix;
+    WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
+    DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
+    lNormMatrix = ComputeNormalizedGraphLaplacian(WeightedAdjMatrix,DDMatrix,n);
+    printMatrix(lNormMatrix,n,n);
+}
+
 int main(int argc, char *argv[])
 {   
     int* values;
@@ -590,19 +611,13 @@ int main(int argc, char *argv[])
             flowSPKforC(data_vectors,n,d,k,300);
             break;
         case wam:
-            WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-            printMatrix(WeightedAdjMatrix,n,n);
+            flowWam(data_vectors, d, n);
             break;
         case ddg:
-            WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-            DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
-            printMatrix(DDMatrix,n,n);
+            flowDdg(data_vectors,d,n);
             break;
         case lnorm:
-            WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-            DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
-            lNormMatrix = ComputeNormalizedGraphLaplacian(WeightedAdjMatrix,DDMatrix,n);
-            printMatrix(lNormMatrix,n,n);
+            flowLnorm(data_vectors,d,n);
             break;
         case jacobi:
             flowJacobiAlgo(data_vectors,n);
