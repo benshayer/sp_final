@@ -3,6 +3,9 @@ double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int 
 double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n);
 double** DiagonalDegreeMatrix(double** matrix, int n);
 void flowSPKforC(double** observations, int n, int dim, int k,int max_iter);
+void flowWam(double** observations, int d, int n);
+void flowDdg(double** data_vectors,int d, int n);
+void flowLnorm(double** data_vectors,int d, int n);
 void flowJacobiAlgo(double** matrix,int n);
 void getEignValues(double** matrixA,double* EignValues, int n);
 void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k);
