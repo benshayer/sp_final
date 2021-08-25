@@ -98,9 +98,11 @@ int * initDataPoints(char* filename, double ***data_vectors)
                 *data_vectors = (double **)realloc(*data_vectors, n * sizeof(double *));
                 assert(*data_vectors != NULL);
             }
-    (*data_vectors)[j] = vector;
-    j++;
-    d=i;
+    if (c != '\n' && c!='\r'){
+        (*data_vectors)[j] = vector;
+        j++;
+        d=i;
+    }
     free(vector);
     *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
     assert(*data_vectors != NULL);
@@ -163,6 +165,7 @@ double** DiagonalDegreeMatrix(double** matrix, int n)
             sumOfRow += matrix[i][j];
         }
         ddm[i][i] = 1/sqrt(sumOfRow);
+        //ddm[i][i] =(sumOfRow);
     }
     return ddm;
 }
@@ -418,11 +421,12 @@ int TheEigengapHeuristic(double* eigenvalues, int len) {
     double currMax = 0;
     int position=0;
     int i,j;
+    qsort(eigenvalues,len, sizeof(double),cmpfunc);
     for(i=1; i<=(len/2);i++){
-        deltaI = fabs(eigenvalues[i-1]-eigenvalues[i]);
+        deltaI = eigenvalues[i]-eigenvalues[i-1];
         if (deltaI > currMax){
             currMax = deltaI;
-            position = i-1;
+            position = i;
         }
     }
     return position;
@@ -444,7 +448,7 @@ void getMatrixSortedEignVectors(double** matrixA, double** matrixV, double** mat
         indexElem = eignValues[j].index;
         for(i=0;i<n;i++)
         {
-            matrixU[i][j] = matrixA[i][indexElem];
+            matrixU[i][j] = matrixV[i][indexElem];
         }
     }
 }
@@ -489,6 +493,7 @@ double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
         free(EignValues);
     }
     getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,*k);
+    //printMatrix(matrixNewPointsToKmeans,n,k);
     normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,*k);
     freeMatrix(weightedAdjMatrix,n);
     freeMatrix(Lnorm,n);
@@ -534,6 +539,7 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
     }
     getFirstKCentroids(newDataPoints,centroids,k);
     calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
+    printMatrix(centroids,k,k);
 }
 
 void flowJacobiAlgo(double** matrix,int n)
