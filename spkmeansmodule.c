@@ -3,14 +3,102 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "spkmeans.c"
+#include "spkmeans.h"
 
+static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args);
+static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args);
 static void jacobi_capi(PyObject *self, PyObject *args);
 static void wam_capi(PyObject *self, PyObject *args);
 static void ddg_capi(PyObject *self, PyObject *args);
 static void lnorm_capi(PyObject *self, PyObject *args);
 static void convert_data_to_c(PyObject* data_points_py, double** data_points, int n, int d);
 static void convert_point_to_c(PyObject* point_py, double* point, int d);
+
+static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args)
+{
+    PyObject* data_points_py;
+    PyObject* centroids_py;
+    int n;
+    int d;
+    int k;
+    int i;
+    int j;
+    int max_iter;
+    double** data_points;
+    double** centroids;
+    PyObject * item;
+    PyObject* final_centroids;
+    PyObject* current_centroid;
+    if(!PyArg_ParseTuple(args,"iiiiOO",&n,&d,&k,&max_iter,&data_points_py,&centroids_py)){
+        return NULL;
+    }
+    final_centroids = PyList_New(k);
+    data_points = (double **)calloc(n, sizeof(double*));
+    assert(data_points!=NULL);
+    centroids = (double **)calloc(k,sizeof(double*));
+    assert(centroids!=NULL);
+    convert_data_to_c(data_points_py,data_points,n,d);
+    convert_data_to_c(centroids_py,centroids,k,d);
+    calculate_kmeans(data_points,centroids,n,d,k,max_iter);
+    for (i=0;i<k;i++){
+        current_centroid = PyList_New(d);
+        for (j=0;j<d;j++){
+            item = PyFloat_FromDouble(centroids[i][j]);
+            PyList_SetItem(current_centroid,j,item);
+        }
+        PyList_SetItem(final_centroids,i,current_centroid);
+        free(centroids[i]);
+    }
+    for (i=0;i<n;i++){
+        free(data_points[i]);
+    }
+    free(centroids);
+    free(data_points);
+    return final_centroids;
+
+}
+
+static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args)
+{
+    PyObject* data_points_py;
+    PyObject* PyNewDataPoints;
+    PyObject *item;
+    PyObject* currentLine;
+    int n,d,k,i,j;
+    double** data_points, **newDataPoints;
+    if(!PyArg_ParseTuple(args,"iiiO",&n,&d,&k,&data_points_py)){
+        return NULL;
+    }
+    PyNewDataPoints = PyList_New(n);
+    data_points = (double **)calloc(n, sizeof(double*));
+    assert(data_points!=NULL);
+    convert_data_to_c(data_points_py,data_points,n,d);
+    newDataPoints = getNewDataPointsDimK(data_points,n,d,&k);
+    //printMatrix(newDataPoints,n,k);
+    //printf("Finish print Matrix");
+    for (i=0;i<n;i++){
+        currentLine = PyList_New(k);
+        for (j=0;j<k;j++){
+            item = PyFloat_FromDouble(newDataPoints[i][j]);
+            //printf("Item line %d and colunm %d is %f", i,j,newDataPoints[i][j]);
+            PyList_SetItem(currentLine,j,item);
+        }
+        PyList_SetItem(PyNewDataPoints,i,currentLine);
+        //printf("Set line success");
+        free(newDataPoints[i]);
+        //printf("Free line number %d\n",i);
+    }
+    //printf("free lines_newDataPoints");
+    for (i=0;i<n;i++){
+        free(data_points[i]);
+    }
+    //printf("free lines_datapoints");
+    free(newDataPoints);
+    free(data_points);
+    //printf("return DataPoints");
+    return PyNewDataPoints;
+
+}
 
 static void jacobi_capi(PyObject *self, PyObject *args)
 {
@@ -105,6 +193,8 @@ static void convert_point_to_c(PyObject* point_py, double* point, int d){
 }
 
 static PyMethodDef _capiMethods[] = {
+    {"kmeans_pp", (PyCFunction) kmeans_pp_capi, METH_VARARGS, PyDoc_STR("Get datapoints and centroids and calc kmeans")},
+    {"getnew_datapoints", (PyCFunction) getSPKDataPoints_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
     {"jacobi", (PyCFunction) jacobi_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
     {"wam", (PyCFunction) wam_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
     {"ddg", (PyCFunction) ddg_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
