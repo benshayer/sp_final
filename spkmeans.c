@@ -103,7 +103,7 @@ int * initDataPoints(char* filename, double ***data_vectors)
         j++;
         d=i;
     }
-    free(vector);
+    //free(vector);
     *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
     assert(*data_vectors != NULL);
     value = (int *)calloc(2, sizeof(int));
@@ -359,7 +359,7 @@ void getEignValues(double** matrixA,double* EignValues, int n)
 void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
-    double **matrixAtag, **matrixP, **matrixNewV, c, s,offA , offAtag, epsilon = 0.001;
+    double **matrixAtag, **matrixP, **matrixNewV, c, s,offA , offAtag, epsilon = pow(10,-15);
     int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1, countIter=0;
     EignValue *eignValues;
     for (i=0; i<n;i++)
@@ -513,15 +513,30 @@ void getFirstKCentroids(double** dataPoints, double** centroidsToFill, int k)
         }
     }
 }
+
+int checkNegativeZero(double value)
+{
+    if (value>-0.00005 && value<0){ return 1;}
+    return 0;
+}
 void printMatrix(double** matrix, int a, int b) {
     int i,j;
     for (i = 0; i < a; i++)
     {
         for (j = 0; j <  b - 1; j++)
         {
-            printf("%0.4f,", matrix[i][j]);
+            if (checkNegativeZero(matrix[i][j])){
+                printf("0.0000,");
+            } else{
+                printf("%0.4f,", matrix[i][j]);
+            }
+            
         }
-        printf("%0.4f", matrix[i][b - 1]);
+        if (checkNegativeZero(matrix[i][b-1])){
+            printf("0.0000,");
+        } else{
+            printf("%0.4f", matrix[i][b-1]);
+        }
         putchar('\n');
     }
 }
