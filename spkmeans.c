@@ -418,11 +418,12 @@ int TheEigengapHeuristic(double* eigenvalues, int len) {
     double currMax = 0;
     int position=0;
     int i,j;
+    qsort(eigenvalues,len, sizeof(double),cmpfunc);
     for(i=1; i<=(len/2);i++){
-        deltaI = fabs(eigenvalues[i-1]-eigenvalues[i]);
+        deltaI = eigenvalues[i]-eigenvalues[i-1];
         if (deltaI > currMax){
             currMax = deltaI;
-            position = i-1;
+            position = i;
         }
     }
     return position;
@@ -444,7 +445,7 @@ void getMatrixSortedEignVectors(double** matrixA, double** matrixV, double** mat
         indexElem = eignValues[j].index;
         for(i=0;i<n;i++)
         {
-            matrixU[i][j] = matrixA[i][indexElem];
+            matrixU[i][j] = matrixV[i][indexElem];
         }
     }
 }
