@@ -149,7 +149,7 @@ double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n)
     return wam;
 }
 
-double** DiagonalDegreeMatrix(double** matrix, int n)
+double** DiagonalDegreeMatrix(double** matrix, int n, int sqrtMode)
 {
     double** ddm;
     double sumOfRow;
@@ -164,8 +164,13 @@ double** DiagonalDegreeMatrix(double** matrix, int n)
         for (j=0;j<n;j++){
             sumOfRow += matrix[i][j];
         }
-        ddm[i][i] = 1/sqrt(sumOfRow);
-        //ddm[i][i] =(sumOfRow);
+        if (sqrtMode){
+            ddm[i][i] = 1/sqrt(sumOfRow);
+        }
+        else{
+            ddm[i][i] =(sumOfRow);
+        }
+        
     }
     return ddm;
 }
@@ -475,7 +480,7 @@ double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
     int i;
     double **weightedAdjMatrix, **Lnorm, **ddMatrix, **EignVectorsMatrix,**matrixNewPointsToKmeans, *EignValues;
     weightedAdjMatrix = CreateWeightedAdjacencyMatrix(observations,dim,n);
-    ddMatrix = DiagonalDegreeMatrix(weightedAdjMatrix,n);
+    ddMatrix = DiagonalDegreeMatrix(weightedAdjMatrix,n,1);
     Lnorm = ComputeNormalizedGraphLaplacian(weightedAdjMatrix,ddMatrix,n);
     EignVectorsMatrix = (double**)calloc(n,sizeof(double*));
     matrixNewPointsToKmeans = (double**)calloc(n,sizeof(double*));
@@ -600,14 +605,14 @@ void flowWam(double** data_vectors,int d, int n) {
 void flowDdg(double** data_vectors,int d, int n) {
     double** WeightedAdjMatrix, **DDMatrix;
     WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-    DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
+    DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n,0);
     printMatrix(DDMatrix,n,n);
 }
 
 void flowLnorm(double** data_vectors,int d, int n) {
     double** WeightedAdjMatrix, **DDMatrix, **lNormMatrix;
     WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
-    DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n);
+    DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n,1);
     lNormMatrix = ComputeNormalizedGraphLaplacian(WeightedAdjMatrix,DDMatrix,n);
     printMatrix(lNormMatrix,n,n);
 }
