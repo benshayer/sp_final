@@ -8,10 +8,10 @@
 
 static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args);
 static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args);
-static void jacobi_capi(PyObject *self, PyObject *args);
-static void wam_capi(PyObject *self, PyObject *args);
-static void ddg_capi(PyObject *self, PyObject *args);
-static void lnorm_capi(PyObject *self, PyObject *args);
+static PyObject* jacobi_capi(PyObject *self, PyObject *args);
+static PyObject* wam_capi(PyObject *self, PyObject *args);
+static PyObject* ddg_capi(PyObject *self, PyObject *args);
+static PyObject* lnorm_capi(PyObject *self, PyObject *args);
 static void convert_data_to_c(PyObject* data_points_py, double** data_points, int n, int d);
 static void convert_point_to_c(PyObject* point_py, double* point, int d);
 
@@ -101,61 +101,73 @@ static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args)
 
 }
 
-static void jacobi_capi(PyObject *self, PyObject *args)
+static PyObject* jacobi_capi(PyObject *self, PyObject *args)
 {
     PyObject* data_points_py;
+    int returnVal;
     int n;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iO",&n,&data_points_py)){
-        return;
+        return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
     convert_data_to_c(data_points_py,data_points,n,n);
     flowJacobiAlgo(data_points,n);
+    returnVal = 0;
+    return PyLong_FromLong(returnVal);
 }
 
 
-static void ddg_capi(PyObject *self, PyObject *args)
+static PyObject* ddg_capi(PyObject *self, PyObject *args)
 {
     PyObject* data_points_py;
+    int returnVal;
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
-        return;
+        return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
     convert_data_to_c(data_points_py,data_points,n,n);
     flowDdg(data_points,d,n);
+    returnVal = 0;
+    return PyLong_FromLong(returnVal);
 }
 
-static void lnorm_capi(PyObject *self, PyObject *args)
+static PyObject* lnorm_capi(PyObject *self, PyObject *args)
 {
     PyObject* data_points_py;
+    int returnVal;
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
-        return;
+        return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
     convert_data_to_c(data_points_py,data_points,n,n);
     flowLnorm(data_points,d,n);
+    returnVal = 0;
+    return PyLong_FromLong(returnVal);
 }
 
-static void wam_capi(PyObject *self, PyObject *args)
+static PyObject* wam_capi(PyObject *self, PyObject *args)
 {
     PyObject* data_points_py;
+    int returnVal;
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
-        return;
+        return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
     convert_data_to_c(data_points_py,data_points,n,n);
     flowWam(data_points,d,n);
+    returnVal = 0;
+    return PyLong_FromLong(returnVal);
 }
 
 
