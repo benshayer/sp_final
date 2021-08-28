@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "spkmeans.h"
+#include "kmeans.h"
 
 static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args);
 static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args);
@@ -106,7 +107,7 @@ static void jacobi_capi(PyObject *self, PyObject *args)
     int n;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iO",&n,&data_points_py)){
-        return NULL;
+        return;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
@@ -121,7 +122,7 @@ static void ddg_capi(PyObject *self, PyObject *args)
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
-        return NULL;
+        return;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
@@ -135,7 +136,7 @@ static void lnorm_capi(PyObject *self, PyObject *args)
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
-        return NULL;
+        return;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
@@ -149,7 +150,7 @@ static void wam_capi(PyObject *self, PyObject *args)
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
-        return NULL;
+        return;
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
