@@ -21,7 +21,7 @@ def calculate_points_distance(row_i, row_j):
 def initial_kmeans_pp_centroids(k, full_data_points):
     n = len(full_data_points)
     if k >= n:
-        print("The arguments should be in correct format!")
+        print("Invalid Input!")
         exit()
     initial_centroids = calculate_initial_centroids(k, full_data_points)
     centroids_points = get_centroids_points(initial_centroids, full_data_points)
@@ -85,6 +85,9 @@ if __name__ == '__main__':
     d = len(dataVectors[0])
     max_iter=300
     if goal=="spk":
+        if (k<0 or k>=n):
+            print("Invalid Input!")
+            exit()
         newDataPoints = spkmeans.getnew_datapoints(n,d,k,dataVectors)
         newDataPoints_df = pd.DataFrame(newDataPoints)
         k=len(newDataPoints[0])

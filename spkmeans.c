@@ -27,6 +27,9 @@ int convertStringIntoGoalEnum(char* UserGoal)
         return 3;
     } else if (!strcmp(UserGoal,"jacobi")){
         return 4;
+    } else 
+    {
+        return 5;
     };
 }
 
@@ -115,8 +118,8 @@ int * initDataPoints(char* filename, double ***data_vectors)
 
 double calcWeight(double* observ1, double* observ2, int dim)
 {
-    double sum = 0, currDiff, norm,weight;
-    int i;
+    double sum = 0, currDiff=0, norm=0,weight=0;
+    int i=0;
     for (i=0;i<dim;i++)
     {
         currDiff = (observ1[i]-observ2[i])*(observ1[i]-observ2[i]);
@@ -226,7 +229,7 @@ void LaplacianNorm_helper(double** Lnorm, int n)
 double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int n)
 {
     double** Lnorm, **midMatrix;
-    int i,j;
+    int i=0,j=0;
     Lnorm = calloc(n,sizeof(double*));
     midMatrix = calloc(n,sizeof(double*));
     for(i=0;i<n;i++)
@@ -294,7 +297,7 @@ void RotateMatrix_helper(double** matrixA,double c, double s,int i, int j, int n
 
 void UpdateMatrixV(double **matrixV, double c, double s, int i, int j, int n)
 {
-    int p,q,r;
+    int p=0,q=0,r=0;
     double *Icol, *Jcol;
     Icol = calloc(n,sizeof(double));
     Jcol = calloc(n,sizeof(double));
@@ -359,7 +362,7 @@ void getEignValues(double** matrixA,double* EignValues, int n)
 void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
-    double **matrixAtag, **matrixP, **matrixNewV, c, s,offA , offAtag, epsilon = pow(10,-15);
+    double c, s,offA , offAtag, epsilon = 0.001;
     int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1, countIter=0;
     EignValue *eignValues;
     for (i=0; i<n;i++)
@@ -376,31 +379,8 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
     do{
         countIter++;
         calcOFFMatrix(matrixA, &offA, n);
-        matrixNewV = calloc(n,sizeof(double*));
-        assert(matrixNewV!=NULL);
-        matrixP = calloc(n,sizeof(double*));
-        assert(matrixP!=NULL);
-        for(i=0;i<n;i++)
-        {
-            matrixNewV[i] = calloc(n, sizeof(double));
-            assert(matrixNewV[i]!=NULL);
-            matrixP[i] = calloc(n,sizeof(double));
-            assert(matrixP[i]!=NULL);
-            matrixP[i][i] = 1;
-            for(j=0;j<n;j++)
-            {
-                if(i!=j)
-                {
-                    matrixP[i][j] =0;
-                }
-            }    
-        }
         findMaxOffDiagonal(matrixA,&maxElementOffDiagonalI,&maxElementOffDiagonalJ,n);
         calculateRotateValues(matrixA,&c, &s,maxElementOffDiagonalI,maxElementOffDiagonalJ);
-        matrixP[maxElementOffDiagonalI][maxElementOffDiagonalI] = c;
-        matrixP[maxElementOffDiagonalJ][maxElementOffDiagonalJ] = c;
-        matrixP[maxElementOffDiagonalI][maxElementOffDiagonalJ] = s;
-        matrixP[maxElementOffDiagonalJ][maxElementOffDiagonalI] = -s; //Fill relevant values of P
         RotateMatrix_helper(matrixA,c, s,maxElementOffDiagonalI,maxElementOffDiagonalJ, n); //Calculate A' matrix
         //MatrixMultiply_helper(matrixV,matrixP,matrixNewV,n); //Get the current matrix V
         UpdateMatrixV(matrixV,c,s,maxElementOffDiagonalI,maxElementOffDiagonalJ,n);
@@ -410,7 +390,6 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         {
             stopCondition = 0;
         }
-        freeMatrix(matrixP,n);
         //freeMatrix(matrixNewV,n);
         if (offAtag==0) {break;}
     } while(stopCondition && countIter<100);
@@ -621,6 +600,11 @@ int main(int argc, char *argv[])
     double** data_vectors, **WeightedAdjMatrix, **DDMatrix, **lNormMatrix;
     data_vectors = (double **)calloc(n, sizeof(double *));
     k = atoi(argv[1]);
+    if (k>=n || k<0)
+    {
+        printf("Invalid Input!");
+        exit(0);
+    }
     flow = argv[2];
     nameOfFile = argv[3];
     values = initDataPoints(nameOfFile, &data_vectors);
@@ -643,6 +627,9 @@ int main(int argc, char *argv[])
         case jacobi:
             flowJacobiAlgo(data_vectors,n);
             break;
+        default:
+            printf("Invalid Input!");
+            exit(0);
     }
   return 0;
 }
