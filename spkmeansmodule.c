@@ -197,9 +197,9 @@ static PyMethodDef _capiMethods[] = {
     {"kmeans_pp", (PyCFunction) kmeans_pp_capi, METH_VARARGS, PyDoc_STR("Get datapoints and centroids and calc kmeans")},
     {"getnew_datapoints", (PyCFunction) getSPKDataPoints_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
     {"jacobi", (PyCFunction) jacobi_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
-    {"wam", (PyCFunction) wam_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
-    {"ddg", (PyCFunction) ddg_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
-    {"lnorm", (PyCFunction) lnorm_capi, METH_VARARGS, PyDoc_STR("A function to run Jacobi algorithm to find Eignvalues and Eignvectors")},
+    {"wam", (PyCFunction) wam_capi, METH_VARARGS, PyDoc_STR("A function to find WAM for set of data points")},
+    {"ddg", (PyCFunction) ddg_capi, METH_VARARGS, PyDoc_STR("A function to find DDG for set of data points")},
+    {"lnorm", (PyCFunction) lnorm_capi, METH_VARARGS, PyDoc_STR("A function to find LNORM for set of data points")},
     {NULL,NULL,0,NULL}
 };
 
