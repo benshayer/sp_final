@@ -55,15 +55,15 @@ int cmpfunc (const void * a, const void * b) {
 int * initDataPoints(char* filename, double ***data_vectors)
 {
     FILE *ifp = NULL;
-    ifp = fopen(filename,"r");
     double *vector;
     double current_value;
+    int *value;
+    char c;
     int d = 2;
     int n = 10;
     int i = 0;
     int j = 0;
-    int *value;
-    char c;
+    ifp = fopen(filename,"r");
     vector = (double *)calloc(d, sizeof(double));
     assert(vector != NULL);
     while (fscanf(ifp,"%lf%c", &current_value, &c) >= 1)
@@ -106,7 +106,6 @@ int * initDataPoints(char* filename, double ***data_vectors)
         j++;
         d=i;
     }
-    //free(vector);
     *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
     assert(*data_vectors != NULL);
     value = (int *)calloc(2, sizeof(int));
@@ -118,7 +117,7 @@ int * initDataPoints(char* filename, double ***data_vectors)
 
 double calcWeight(double* observ1, double* observ2, int dim)
 {
-    double sum = 0, currDiff=0, norm=0,weight=0;
+    double sum = 0, currDiff=0, norm=0;
     int i=0;
     for (i=0;i<dim;i++)
     {
@@ -234,7 +233,7 @@ void LaplacianNorm_helper(double** Lnorm, int n)
 double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int n)
 {
     double** Lnorm, **midMatrix;
-    int i=0,j=0;
+    int i=0;
     Lnorm = calloc(n,sizeof(double*));
     midMatrix = calloc(n,sizeof(double*));
     for(i=0;i<n;i++)
@@ -273,15 +272,15 @@ void transform(double** matrixA, double** matrixAt, int n)
 void RotateMatrix_helper(double** matrixA,double c, double s,int i, int j, int n)
 {   
     double *Icol, *Jcol;
+    int r;
     Icol = calloc(n,sizeof(double));
     Jcol = calloc(n,sizeof(double));
-    int r;
     for (r=0;r<n;r++)
     {
         Icol[r] = matrixA[r][i];
         Jcol[r] = matrixA[r][j];
     }
-    for(int r=0; r<n;r++)
+    for(r=0; r<n;r++)
     {
         if(r!=i && r!=j)
         {
@@ -302,7 +301,7 @@ void RotateMatrix_helper(double** matrixA,double c, double s,int i, int j, int n
 
 void UpdateMatrixV(double **matrixV, double c, double s, int i, int j, int n)
 {
-    int p=0,q=0,r=0;
+    int r=0;
     double *Icol, *Jcol;
     Icol = calloc(n,sizeof(double));
     Jcol = calloc(n,sizeof(double));
@@ -367,12 +366,11 @@ void getEignValues(double** matrixA,double* EignValues, int n)
 void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
 {
 
-    double c, s,offA , offAtag, epsilon = 0.001;
+    double c, s,offA , offAtag, epsilon = pow(10,-15);
     int maxElementOffDiagonalI, maxElementOffDiagonalJ,i,j, stopCondition=1, countIter=0;
-    EignValue *eignValues;
     for (i=0; i<n;i++)
     {
-        matrixV[i][i] = 1; //Init V to be identity matrix
+        matrixV[i][i] = 1; /*Init V to be identity matrix*/
         for(j=0;j<n;j++)
         {
             if(i!=j)
@@ -386,16 +384,13 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         calcOFFMatrix(matrixA, &offA, n);
         findMaxOffDiagonal(matrixA,&maxElementOffDiagonalI,&maxElementOffDiagonalJ,n);
         calculateRotateValues(matrixA,&c, &s,maxElementOffDiagonalI,maxElementOffDiagonalJ);
-        RotateMatrix_helper(matrixA,c, s,maxElementOffDiagonalI,maxElementOffDiagonalJ, n); //Calculate A' matrix
-        //MatrixMultiply_helper(matrixV,matrixP,matrixNewV,n); //Get the current matrix V
+        RotateMatrix_helper(matrixA,c, s,maxElementOffDiagonalI,maxElementOffDiagonalJ, n); /*Calculate A' matrix*/
         UpdateMatrixV(matrixV,c,s,maxElementOffDiagonalI,maxElementOffDiagonalJ,n);
         calcOFFMatrix(matrixA, &offAtag, n);
-        //copyMatrix(matrixNewV,matrixV,n);
         if ((offA-offAtag)<epsilon)
         {
             stopCondition = 0;
         }
-        //freeMatrix(matrixNewV,n);
         if (offAtag==0) {break;}
     } while(stopCondition && countIter<100);
 }
@@ -404,7 +399,7 @@ int TheEigengapHeuristic(double* eigenvalues, int len) {
     double deltaI = 0;
     double currMax = 0;
     int position=0;
-    int i,j;
+    int i;
     qsort(eigenvalues,len, sizeof(double),cmpfunc);
     for(i=1; i<=(len/2);i++){
         deltaI = eigenvalues[i]-eigenvalues[i-1];
@@ -601,11 +596,11 @@ int main(int argc, char *argv[])
     int* values;
     int n,k,d;
     char* flow, *nameOfFile;
+    double** data_vectors;
     n = 10;
-    double** data_vectors, **WeightedAdjMatrix, **DDMatrix, **lNormMatrix;
     data_vectors = (double **)calloc(n, sizeof(double *));
     k = atoi(argv[1]);
-    if (k>=n || k<0)
+    if (k>=n || k<0 || argc!=4)
     {
         printf("Invalid Input!");
         exit(0);
