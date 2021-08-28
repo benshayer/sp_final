@@ -244,6 +244,7 @@ double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int 
     MatrixMultiply_helper(ddm_square,wam,midMatrix,n);
     MatrixMultiply_helper(midMatrix,ddm_square,Lnorm,n);
     LaplacianNorm_helper(Lnorm, n);
+    freeMatrix(midMatrix,n);
     return Lnorm;
 
 }
@@ -537,6 +538,8 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
     getFirstKCentroids(newDataPoints,centroids,k);
     calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
     printMatrix(centroids,k,k);
+    freeMatrix(newDataPoints,n);
+    freeMatrix(centroids,k);
 }
 
 void flowJacobiAlgo(double** matrix,int n)
@@ -577,6 +580,7 @@ void flowWam(double** data_vectors,int d, int n) {
     double** WeightedAdjMatrix;
     WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
     printMatrix(WeightedAdjMatrix,n,n);
+    freeMatrix(WeightedAdjMatrix,n);
 }
 
 void flowDdg(double** data_vectors,int d, int n) {
@@ -584,6 +588,8 @@ void flowDdg(double** data_vectors,int d, int n) {
     WeightedAdjMatrix = CreateWeightedAdjacencyMatrix(data_vectors, d, n);
     DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n,0);
     printMatrix(DDMatrix,n,n);
+    freeMatrix(WeightedAdjMatrix,n);
+    freeMatrix(DDMatrix,n);
 }
 
 void flowLnorm(double** data_vectors,int d, int n) {
@@ -592,6 +598,9 @@ void flowLnorm(double** data_vectors,int d, int n) {
     DDMatrix = DiagonalDegreeMatrix(WeightedAdjMatrix,n,1);
     lNormMatrix = ComputeNormalizedGraphLaplacian(WeightedAdjMatrix,DDMatrix,n);
     printMatrix(lNormMatrix,n,n);
+    freeMatrix(WeightedAdjMatrix,n);
+    freeMatrix(DDMatrix,n);
+    freeMatrix(lNormMatrix,n);
 }
 
 int main(int argc, char *argv[])
@@ -603,7 +612,7 @@ int main(int argc, char *argv[])
     n = 10;
     data_vectors = (double **)calloc(n, sizeof(double *));
     k = atoi(argv[1]);
-    if (k>=n || k<0 || argc!=4)
+    if (argc!=4)
     {
         printf("Invalid Input!");
         exit(0);
@@ -616,6 +625,11 @@ int main(int argc, char *argv[])
     switch(convertStringIntoGoalEnum(flow))
     {
         case spk:
+            if (k>=n || k<0)
+                {
+                printf("Invalid Input!");
+                exit(0);
+                }
             flowSPKforC(data_vectors,n,d,k,300);
             break;
         case wam:
