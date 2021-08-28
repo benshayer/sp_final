@@ -11,7 +11,10 @@ void calculateCentroids(double ***new_centroids, int *sizes, int d, int k)
     {
         for (j = 0; j < d; j++)
         {
-            (*new_centroids)[i][j] = (*new_centroids)[i][j] / sizes[i];
+            if (sizes[i]!=0)
+            {
+                            (*new_centroids)[i][j] = (*new_centroids)[i][j] / sizes[i];
+            }
         }
     }
 }

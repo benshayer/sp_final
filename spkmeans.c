@@ -442,11 +442,15 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
         {
             sumRow+=pow(matrixU[i][j],2);
         }
-        for(j=0;j<k;j++)
+        if (sumRow!=0)
         {
-            matrixU[i][j] = matrixU[i][j]/pow(sumRow,0.5);
-        }
+            for(j=0;j<k;j++)
+                {
+                    matrixU[i][j] = matrixU[i][j]/pow(sumRow,0.5);
+                }
     }
+        }
+
 }
 
 double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
@@ -472,7 +476,6 @@ double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
         free(EignValues);
     }
     getMatrixSortedEignVectors(Lnorm,EignVectorsMatrix,matrixNewPointsToKmeans,n,*k);
-    //printMatrix(matrixNewPointsToKmeans,n,k);
     normalizedMatrixUtoMatrixT(matrixNewPointsToKmeans,n,*k);
     freeMatrix(weightedAdjMatrix,n);
     freeMatrix(Lnorm,n);
