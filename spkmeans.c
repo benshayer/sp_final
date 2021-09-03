@@ -628,6 +628,7 @@ int main(int argc, char *argv[])
             if (k>=n || k<0)
                 {
                 printf("Invalid Input!");
+                freeMatrix(data_vectors,n);
                 exit(0);
                 }
             flowSPKforC(data_vectors,n,d,k,300);
@@ -646,8 +647,10 @@ int main(int argc, char *argv[])
             break;
         default:
             printf("Invalid Input!");
+            freeMatrix(data_vectors,n);
             exit(0);
     }
+    freeMatrix(data_vectors,n);
   return 0;
 }
 
