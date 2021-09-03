@@ -75,28 +75,20 @@ static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args)
     assert(data_points!=NULL);
     convert_data_to_c(data_points_py,data_points,n,d);
     newDataPoints = getNewDataPointsDimK(data_points,n,d,&k);
-    //printMatrix(newDataPoints,n,k);
-    //printf("Finish print Matrix");
     for (i=0;i<n;i++){
         currentLine = PyList_New(k);
         for (j=0;j<k;j++){
             item = PyFloat_FromDouble(newDataPoints[i][j]);
-            //printf("Item line %d and colunm %d is %f", i,j,newDataPoints[i][j]);
             PyList_SetItem(currentLine,j,item);
         }
         PyList_SetItem(PyNewDataPoints,i,currentLine);
-        //printf("Set line success");
         free(newDataPoints[i]);
-        //printf("Free line number %d\n",i);
     }
-    //printf("free lines_newDataPoints");
     for (i=0;i<n;i++){
         free(data_points[i]);
     }
-    //printf("free lines_datapoints");
     free(newDataPoints);
     free(data_points);
-    //printf("return DataPoints");
     return PyNewDataPoints;
 
 }
@@ -104,7 +96,6 @@ static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args)
 static PyObject* jacobi_capi(PyObject *self, PyObject *args)
 {
     PyObject* data_points_py;
-    int returnVal;
     int n;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iO",&n,&data_points_py)){
@@ -114,15 +105,16 @@ static PyObject* jacobi_capi(PyObject *self, PyObject *args)
     assert(data_points!=NULL);
     convert_data_to_c(data_points_py,data_points,n,n);
     flowJacobiAlgo(data_points,n);
-    returnVal = 0;
-    return PyLong_FromLong(returnVal);
+    freeMatrix(data_points,n);
+    
+    Py_RETURN_NONE;
 }
 
 
 static PyObject* ddg_capi(PyObject *self, PyObject *args)
 {
+
     PyObject* data_points_py;
-    int returnVal;
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
@@ -130,16 +122,15 @@ static PyObject* ddg_capi(PyObject *self, PyObject *args)
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
-    convert_data_to_c(data_points_py,data_points,n,n);
+    convert_data_to_c(data_points_py,data_points,n,d);
     flowDdg(data_points,d,n);
-    returnVal = 0;
-    return PyLong_FromLong(returnVal);
+    freeMatrix(data_points,n);
+    Py_RETURN_NONE;
 }
 
 static PyObject* lnorm_capi(PyObject *self, PyObject *args)
 {
     PyObject* data_points_py;
-    int returnVal;
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
@@ -147,16 +138,15 @@ static PyObject* lnorm_capi(PyObject *self, PyObject *args)
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
-    convert_data_to_c(data_points_py,data_points,n,n);
+    convert_data_to_c(data_points_py,data_points,n,d);
     flowLnorm(data_points,d,n);
-    returnVal = 0;
-    return PyLong_FromLong(returnVal);
+    freeMatrix(data_points,n);
+    Py_RETURN_NONE;
 }
 
 static PyObject* wam_capi(PyObject *self, PyObject *args)
 {
     PyObject* data_points_py;
-    int returnVal;
     int n, d;
     double** data_points;
     if(!PyArg_ParseTuple(args,"iiO",&n,&d,&data_points_py)){
@@ -164,10 +154,9 @@ static PyObject* wam_capi(PyObject *self, PyObject *args)
     }
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
-    convert_data_to_c(data_points_py,data_points,n,n);
+    convert_data_to_c(data_points_py,data_points,n,d);
     flowWam(data_points,d,n);
-    returnVal = 0;
-    return PyLong_FromLong(returnVal);
+    Py_RETURN_NONE;
 }
 
 
