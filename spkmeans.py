@@ -4,6 +4,7 @@ import spkmeans
 import argparse
 import pandas as pd
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument("args", nargs="+")
 parser = parser.parse_args()
@@ -11,8 +12,9 @@ args = parser.args
 if len(args) == 3:
     k,  goal, file_name = int(args[0]), str(args[1]), str(args[2])
 else:
-    print("Error!")
+    print("Invalid Input!")
     exit()
+
 
 def calculate_points_distance(row_i, row_j):
     distance = np.sum([(x - y) ** 2 for (x, y) in zip(row_i, row_j)])
@@ -108,5 +110,6 @@ if __name__ == '__main__':
         spkmeans.lnorm(n,d,dataVectors)
     elif goal=="jacobi":
         spkmeans.jacobi(n,dataVectors)
+
 
 
