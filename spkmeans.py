@@ -66,8 +66,10 @@ def print_centroids(centroids):
     d = len(centroids[0])
     for i in range(k):
         for j in range(d - 1):
-            print(f'{np.round(centroids[i][j],4)}',end=',')
-        print(f'{np.round(centroids[i][d-1],4)}')
+            print(f'{format(centroids[i][j],".4f")}',end=",")
+            #print(f'{np.round(centroids[i][j],4)}',end=',')
+        #print(f'{np.round(centroids[i][d-1],4)}')
+        print(f'{format(centroids[i][d-1], ".4f")}')
 
 
 def initDataPointsPython(filename):

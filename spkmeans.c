@@ -511,14 +511,14 @@ void printMatrix(double** matrix, int a, int b) {
             if (checkNegativeZero(matrix[i][j])){
                 printf("0.0000,");
             } else{
-                printf("%0.4f,", matrix[i][j]);
+                printf("%.4f,", matrix[i][j]);
             }
             
         }
         if (checkNegativeZero(matrix[i][b-1])){
-            printf("0.0000,");
+            printf("0.0000");
         } else{
-            printf("%0.4f", matrix[i][b-1]);
+            printf("%.4f", matrix[i][b-1]);
         }
         putchar('\n');
     }
@@ -566,11 +566,19 @@ void flowJacobiAlgo(double** matrix,int n)
         {
             if (j<(n-1))
             {
-                printf("%0.4f,",matrixEignVectors[j][i]);
+            if (checkNegativeZero(matrixEignVectors[j][i])){
+                printf("0.0000,");
+            } else{
+                printf("%.4f,", matrixEignVectors[j][i]);
+            }
             }
             else
             {
-                printf("%0.4f\n",matrixEignVectors[j][i]);
+                if (checkNegativeZero(matrixEignVectors[n-1][i])){
+                    printf("0.0000");
+                } else{
+                    printf("%.4f\n", matrixEignVectors[n-1][i]);
+                    }
             }
         }
     }
