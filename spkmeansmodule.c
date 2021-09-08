@@ -30,9 +30,9 @@ static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args)
         return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
-    assert(data_points!=NULL);
+    assert(data_points!=NULL && "An Error Has Occured");
     centroids = (double **)calloc(k,sizeof(double*));
-    assert(centroids!=NULL);
+    assert(centroids!=NULL && "An Error Has Occured");
     convert_data_to_c(data_points_py,data_points,n,d);
     convert_data_to_c(centroids_py,centroids,k,d);
     calculate_kmeans(data_points,centroids,n,d,k,max_iter);
@@ -62,7 +62,7 @@ static PyObject* getSPKDataPoints_capi(PyObject *self, PyObject *args)
     }
     PyNewDataPoints = PyList_New(n);
     data_points = (double **)calloc(n, sizeof(double*));
-    assert(data_points!=NULL);
+    assert(data_points!=NULL && "An Error Has Occured");
     convert_data_to_c(data_points_py,data_points,n,d);
     newDataPoints = getNewDataPointsDimK(data_points,n,d,&k);
     for (i=0;i<n;i++){
@@ -92,7 +92,7 @@ static PyObject* jacobi_capi(PyObject *self, PyObject *args)
         return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
-    assert(data_points!=NULL);
+    assert(data_points!=NULL && "An Error Has Occured");
     convert_data_to_c(data_points_py,data_points,n,n);
     flowJacobiAlgo(data_points,n);
     freeMatrix(data_points,n);
@@ -111,7 +111,7 @@ static PyObject* ddg_capi(PyObject *self, PyObject *args)
         return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
-    assert(data_points!=NULL);
+    assert(data_points!=NULL && "An Error Has Occured");
     convert_data_to_c(data_points_py,data_points,n,d);
     flowDdg(data_points,d,n);
     freeMatrix(data_points,n);
@@ -127,7 +127,7 @@ static PyObject* lnorm_capi(PyObject *self, PyObject *args)
         return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
-    assert(data_points!=NULL);
+    assert(data_points!=NULL && "An Error Has Occured");
     convert_data_to_c(data_points_py,data_points,n,d);
     flowLnorm(data_points,d,n);
     freeMatrix(data_points,n);
@@ -143,7 +143,7 @@ static PyObject* wam_capi(PyObject *self, PyObject *args)
         return NULL;
     }
     data_points = (double **)calloc(n, sizeof(double*));
-    assert(data_points!=NULL);
+    assert(data_points!=NULL && "An Error Has Occured");
     convert_data_to_c(data_points_py,data_points,n,d);
     flowWam(data_points,d,n);
     Py_RETURN_NONE;
@@ -158,9 +158,10 @@ static void convert_data_to_c(PyObject* data_points_py, double** data_points, in
     double* point;
     for (i=0;i<n;i++){
         point_py = PyList_GET_ITEM(data_points_py,i);
-        assert(point!=NULL);
+        assert(point!=NULL && "An Error Has Occured");
         point = (double*)calloc(d,sizeof(double));
         data_points[i] = (double *)calloc(d,sizeof(double));
+        assert(data_points[i]!=NULL && "An Error Has Occured");
         convert_point_to_c(point_py, point, d);
         for(j=0;j<d;j++){
             current_item = point[j];

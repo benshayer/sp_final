@@ -32,7 +32,7 @@ int convertStringIntoGoalEnum(char* UserGoal)
     };
 }
 
-int cmpfunc (const void * a, const void * b) {
+int cmpfunc (const void * a, const void * b) { /*Comperator for qsort of EignValues struct method*/
    EignValue firstE = *(EignValue*)a;
    EignValue secondE = *(EignValue*)b;
    if (firstE.value > secondE.value){
@@ -51,8 +51,8 @@ int cmpfunc (const void * a, const void * b) {
    }
 }
 
-int doubleCmpr (const void *a, const void * b)
-{
+int doubleCmpr (const void *a, const void * b) /*Comperator for qsort of EignValues from type double method*/
+{ 
     double first = *(double*)a;
     double second = *(double*)b;
     if (first > second)
@@ -83,32 +83,32 @@ int * initDataPoints(char* filename, double ***data_vectors)
     int j = 0;
     ifp = fopen(filename,"r");
     vector = (double *)calloc(d, sizeof(double));
-    assert(vector != NULL);
+    assert(vector != NULL && "An Error Has Occured");
     while (fscanf(ifp,"%lf%c", &current_value, &c) >= 1)
     {
         if (i == (d - 1))
         {
             d *= 2;
             vector = (double *)realloc(vector, d * sizeof(double));
-            assert(vector != NULL);
+            assert(vector != NULL && "An Error Has Occured");
         }
         vector[i] = current_value;
         i++;
         if (c == '\n' || c=='\r')
         {
             vector = (double *)realloc(vector, (i) * sizeof(double));
-            assert(vector != NULL);
+            assert(vector != NULL && "An Error Has Occured");
             if (j == (n - 1))
             {
                 n *= 10;
                 *data_vectors = (double **)realloc(*data_vectors, n * sizeof(double *));
-                assert(*data_vectors != NULL);
+                assert(*data_vectors != NULL && "An Error Has Occured");
             }
 
             (*data_vectors)[j] = vector;
             j++;
             vector = (double *)calloc((i), sizeof(double));
-            assert(vector != NULL);
+            assert(vector != NULL && "An Error Has Occured");
             d = i;
             i = 0;
         } 
@@ -117,7 +117,7 @@ int * initDataPoints(char* filename, double ***data_vectors)
             {
                 n *= 10;
                 *data_vectors = (double **)realloc(*data_vectors, n * sizeof(double *));
-                assert(*data_vectors != NULL);
+                assert(*data_vectors != NULL && "An Error Has Occured");
             }
     if (c != '\n' && c!='\r'){
         (*data_vectors)[j] = vector;
@@ -125,9 +125,9 @@ int * initDataPoints(char* filename, double ***data_vectors)
         d=i;
     }
     *data_vectors = (double **)realloc(*data_vectors, (j) * sizeof(double *));
-    assert(*data_vectors != NULL);
+    assert(*data_vectors != NULL && "An Error Has Occured");
     value = (int *)calloc(2, sizeof(int));
-    assert(value != NULL);
+    assert(value != NULL && "An Error Has Occured");
     value[0] = j;
     value[1] = d;
     fclose(ifp);
@@ -154,9 +154,11 @@ double** CreateWeightedAdjacencyMatrix(double** observations, int dim, int n)
     double currWeight;
     int i,j;
     wam = calloc(n,sizeof(double*));
+    assert(wam!=NULL && "An Error Has Occured");
     for(i=0;i<n;i++)
     {
         wam[i] = calloc(n,sizeof(double));
+        assert( wam[i]!=NULL && "An Error Has Occured");
     }
     for(i=0;i<n;i++)
     {
@@ -176,9 +178,11 @@ double** DiagonalDegreeMatrix(double** matrix, int n, int sqrtMode)
     double sumOfRow;
     int i,j;
     ddm = calloc(n,sizeof(double*));
+    assert(ddm!=NULL && "An Error Has Occured");
     for(i=0;i<n;i++)
     {
         ddm[i] = calloc(n,sizeof(double));
+        assert(ddm[i]!=NULL && "An Error Has Occured");
     }
     for (i=0;i<n;i++){
         sumOfRow = 0;
@@ -254,11 +258,15 @@ double** ComputeNormalizedGraphLaplacian(double** wam, double** ddm_square, int 
     double** Lnorm, **midMatrix;
     int i=0;
     Lnorm = calloc(n,sizeof(double*));
+    assert(Lnorm!=NULL && "An Error Has Occured");
     midMatrix = calloc(n,sizeof(double*));
+    assert(midMatrix!=NULL && "An Error Has Occured");
     for(i=0;i<n;i++)
     {
         Lnorm[i] = calloc(n,sizeof(double));
+        assert(Lnorm[i]!=NULL && "An Error Has Occured");
         midMatrix[i] = calloc(n,sizeof(double));
+        assert(midMatrix[i]!=NULL && "An Error Has Occured");
     }
     MatrixMultiply_helper(ddm_square,wam,midMatrix,n);
     MatrixMultiply_helper(midMatrix,ddm_square,Lnorm,n);
@@ -294,7 +302,9 @@ void RotateMatrix_helper(double** matrixA,double c, double s,int i, int j, int n
     double *Icol, *Jcol;
     int r;
     Icol = calloc(n,sizeof(double));
+    assert(Icol!=NULL && "An Error Has Occured");
     Jcol = calloc(n,sizeof(double));
+    assert(Jcol!=NULL && "An Error Has Occured");
     for (r=0;r<n;r++)
     {
         Icol[r] = matrixA[r][i];
@@ -324,7 +334,9 @@ void UpdateMatrixV(double **matrixV, double c, double s, int i, int j, int n)
     int r=0;
     double *Icol, *Jcol;
     Icol = calloc(n,sizeof(double));
+    assert(Icol!=NULL && "An Error Has Occured");
     Jcol = calloc(n,sizeof(double));
+    assert(Jcol!=NULL && "An Error Has Occured");
     for (r=0;r<n;r++)
     {
         Icol[r] = matrixV[r][i];
@@ -394,7 +406,7 @@ void JacobiAlgorithm(double** matrixA,double** matrixV, int n)
         findMaxOffDiagonal(matrixA,&maxElementOffDiagonalI,&maxElementOffDiagonalJ,n);
         calculateRotateValues(matrixA,&c, &s,maxElementOffDiagonalI,maxElementOffDiagonalJ);
         RotateMatrix_helper(matrixA,c, s,maxElementOffDiagonalI,maxElementOffDiagonalJ, n); /*Calculate A' matrix*/
-        UpdateMatrixV(matrixV,c,s,maxElementOffDiagonalI,maxElementOffDiagonalJ,n);
+        UpdateMatrixV(matrixV,c,s,maxElementOffDiagonalI,maxElementOffDiagonalJ,n); /*Update MatrixV - The matrix with EignVectors*/
         calcOFFMatrix(matrixA, &offAtag, n);
         if ((offA-offAtag)<epsilon)
         {
@@ -426,6 +438,7 @@ void getMatrixSortedEignVectors(double** matrixA, double** matrixV, double** mat
     EignValue* eignValues;
     int i,j, indexElem;
     eignValues = calloc(n,sizeof(EignValue));
+    assert(eignValues!=NULL && "An Error Has Occured");
     for (i=0; i<n; i++){
         eignValues[i].value = matrixA[i][i];
         eignValues[i].index = i;
@@ -471,11 +484,15 @@ double** getNewDataPointsDimK(double** observations, int n, int dim, int* k)
     ddMatrix = DiagonalDegreeMatrix(weightedAdjMatrix,n,1);
     Lnorm = ComputeNormalizedGraphLaplacian(weightedAdjMatrix,ddMatrix,n);
     EignVectorsMatrix = (double**)calloc(n,sizeof(double*));
+    assert(EignVectorsMatrix!=NULL && "An Error Has Occured");
     matrixNewPointsToKmeans = (double**)calloc(n,sizeof(double*));
+    assert(matrixNewPointsToKmeans!=NULL && "An Error Has Occured");
     for(i=0;i<n;i++)
     {
         EignVectorsMatrix[i] = calloc(n,sizeof(double));
+        assert(EignVectorsMatrix[i]!=NULL && "An Error Has Occured");
         matrixNewPointsToKmeans[i] = calloc(n,sizeof(double));
+        assert(matrixNewPointsToKmeans[i]!=NULL && "An Error Has Occured");
     }
     JacobiAlgorithm(Lnorm,EignVectorsMatrix,n);
     if(*k==0)
@@ -538,13 +555,15 @@ void flowSPKforC(double** observations, int n, int dim, int k,int max_iter)
 {
     double** centroids, **newDataPoints;
     int i;
-    newDataPoints = getNewDataPointsDimK(observations,n,dim, &k);
+    newDataPoints = getNewDataPointsDimK(observations,n,dim, &k); /*Get the new Data Points from K dimension into newDataPoints*/
     centroids = (double**)calloc(k,sizeof(double*));
+    assert(centroids!=NULL && "An Error Has Occured");
     for(i=0;i<k;i++)
     {
         centroids[i] = calloc(k,sizeof(double));
+        assert(centroids[i]!=NULL && "An Error Has Occured");
     }
-    getFirstKCentroids(newDataPoints,centroids,k);
+    getFirstKCentroids(newDataPoints,centroids,k); /*Start KMeans Algorithm*/
     calculate_kmeans(newDataPoints,centroids,n,k,k,max_iter);
     printMatrix(centroids,k,k);
     freeMatrix(newDataPoints,n);
@@ -556,11 +575,13 @@ void flowJacobiAlgo(double** matrix,int n)
     double** matrixEignVectors;
     int i,j;
     matrixEignVectors = (double**)calloc(n,sizeof(double*));
+    assert(matrixEignVectors!=NULL && "An Error Has Occured");
     for(i=0;i<n;i++)
     {
         matrixEignVectors[i] = calloc(n,sizeof(double));
+        assert(matrixEignVectors[i]!=NULL && "An Error Has Occured");
     }
-    JacobiAlgorithm(matrix,matrixEignVectors,n);
+    JacobiAlgorithm(matrix,matrixEignVectors,n); /*Run Jacobi Algorithm to get EignValues and EignVectors*/
     for(i=0;i<n;i++)
     {
         if (i<(n-1)){
@@ -628,6 +649,7 @@ int main(int argc, char *argv[])
     double** data_vectors;
     n = 10;
     data_vectors = (double **)calloc(n, sizeof(double *));
+    assert(data_vectors!=NULL && "An Error Has Occured");
     k = atoi(argv[1]);
     if (argc!=4)
     {
