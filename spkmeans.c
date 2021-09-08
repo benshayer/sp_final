@@ -6,7 +6,6 @@
 #include "spkmeans.h"
 #include "kmeans.c"
 
-/* test */
 
 typedef struct EignValue{
     double value;
@@ -50,6 +49,25 @@ int cmpfunc (const void * a, const void * b) {
            return 1;
        }
    }
+}
+
+int doubleCmpr (const void *a, const void * b)
+{
+    double first = *(double*)a;
+    double second = *(double*)b;
+    if (first > second)
+    {
+        return 1;
+    }
+    else {
+        if (first <second) 
+        {
+            return -1;
+        }
+        else {
+            return 0;
+        }
+    }
 }
 
 int * initDataPoints(char* filename, double ***data_vectors)
@@ -112,6 +130,7 @@ int * initDataPoints(char* filename, double ***data_vectors)
     assert(value != NULL);
     value[0] = j;
     value[1] = d;
+    fclose(ifp);
     return value;
 }
 
@@ -343,17 +362,6 @@ void calcOFFMatrix(double** matrixA,double* offA, int n)
     *offA = offMatrix;
 }
 
-void copyMatrix(double** matrixSource, double** matrixDest, int n)
-{
-    int i=0,j=0;
-    for(i=0;i<n;i++)
-    {
-        for(j=0;j<n;j++)
-        {
-            matrixDest[i][j] = matrixSource[i][j];
-        }
-    }
-}
 
 void getEignValues(double** matrixA,double* EignValues, int n)
 {
@@ -401,7 +409,7 @@ int TheEigengapHeuristic(double* eigenvalues, int len) {
     double currMax = 0;
     int position=0;
     int i;
-    qsort(eigenvalues,len, sizeof(double),cmpfunc);
+    qsort(eigenvalues,len, sizeof(double),doubleCmpr);
     for(i=1; i<=(len/2);i++){
         deltaI = eigenvalues[i]-eigenvalues[i-1];
         if (deltaI > currMax){
@@ -431,6 +439,7 @@ void getMatrixSortedEignVectors(double** matrixA, double** matrixV, double** mat
             matrixU[i][j] = matrixV[i][indexElem];
         }
     }
+    free(eignValues);
 }
 void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
 {
@@ -449,8 +458,8 @@ void normalizedMatrixUtoMatrixT(double** matrixU,int n, int k)
                 {
                     matrixU[i][j] = matrixU[i][j]/pow(sumRow,0.5);
                 }
-    }
         }
+    }
 
 }
 
@@ -630,6 +639,7 @@ int main(int argc, char *argv[])
     values = initDataPoints(nameOfFile, &data_vectors);
     n = values[0];
     d = values[1];
+    free(values);
     switch(convertStringIntoGoalEnum(flow))
     {
         case spk:
