@@ -23,17 +23,12 @@ static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args)
     int d;
     int k;
     int i;
-    int j;
     int max_iter;
     double** data_points;
     double** centroids;
-    PyObject * item;
-    PyObject* final_centroids;
-    PyObject* current_centroid;
     if(!PyArg_ParseTuple(args,"iiiiOO",&n,&d,&k,&max_iter,&data_points_py,&centroids_py)){
         return NULL;
     }
-    final_centroids = PyList_New(k);
     data_points = (double **)calloc(n, sizeof(double*));
     assert(data_points!=NULL);
     centroids = (double **)calloc(k,sizeof(double*));
@@ -41,13 +36,8 @@ static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args)
     convert_data_to_c(data_points_py,data_points,n,d);
     convert_data_to_c(centroids_py,centroids,k,d);
     calculate_kmeans(data_points,centroids,n,d,k,max_iter);
+    printMatrix(centroids,k,k);
     for (i=0;i<k;i++){
-        current_centroid = PyList_New(d);
-        for (j=0;j<d;j++){
-            item = PyFloat_FromDouble(centroids[i][j]);
-            PyList_SetItem(current_centroid,j,item);
-        }
-        PyList_SetItem(final_centroids,i,current_centroid);
         free(centroids[i]);
     }
     for (i=0;i<n;i++){
@@ -55,7 +45,7 @@ static PyObject* kmeans_pp_capi(PyObject *self, PyObject *args)
     }
     free(centroids);
     free(data_points);
-    return final_centroids;
+    Py_RETURN_NONE;
 
 }
 
