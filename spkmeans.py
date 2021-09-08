@@ -67,8 +67,6 @@ def print_centroids(centroids):
     for i in range(k):
         for j in range(d - 1):
             print(f'{format(centroids[i][j],".4f")}',end=",")
-            #print(f'{np.round(centroids[i][j],4)}',end=',')
-        #print(f'{np.round(centroids[i][d-1],4)}')
         print(f'{format(centroids[i][d-1], ".4f")}')
 
 
@@ -96,14 +94,12 @@ if __name__ == '__main__':
         newDataPoints_df = pd.DataFrame(newDataPoints)
         k=len(newDataPoints[0])
         centroids_indexes = calculate_initial_centroids(k, newDataPoints_df)
-        #centroid_indexes_index_df = pd.DataFrame(centroid_indexes)
         centroids_points = get_centroids_points(centroids_indexes, newDataPoints_df)
         centroids_list =centroids_points.values.tolist()
         for j in range(k - 1):
             print(centroids_indexes[j], end=',')
         print(centroids_indexes[k - 1])
         final_centroids = spkmeans.kmeans_pp(n, k, k, max_iter, newDataPoints, centroids_list)
-        print_centroids(final_centroids)
     elif goal=="wam":
         spkmeans.wam(n,d,dataVectors)
     elif goal=="ddg":
